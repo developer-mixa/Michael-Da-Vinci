@@ -5,12 +5,6 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     BOT_WEBHOOK_URL: str
 
-    DB_HOST: str
-    DB_PORT: int
-    DB_NAME: str
-    DB_USER: str
-    DB_PASSWORD: str
-
     RABBIT_HOST: str = 'localhost' # rabbitmq
     RABBIT_PORT: int = 5672
     RABBIT_USER: str = 'guest'
@@ -18,6 +12,14 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: str
+
+    PG_USER: str
+    PG_PASSWORD: str
+    PG_DBNAME: str
+    PG_USER: str
+    PG_PASSWORD: str
+    PG_HOST: str
+    PG_PORT: int
 
     USER_GIFT_QUEUE_TEMPLATE: str = 'user_gifts.{user_id}'
 

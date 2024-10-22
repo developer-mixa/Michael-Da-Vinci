@@ -5,7 +5,7 @@ from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from src.server.bot.router import router
+from src.server.router import router
 from src.tasks import background_tasks
 from src.bot.bot import get_dp, get_bot
 

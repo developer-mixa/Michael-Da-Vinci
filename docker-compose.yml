@@ -3,6 +3,37 @@ version: '3.8'
 services:
   web:
     build: .
-    command: python3 test.py
+    command: python3 ./src/app.py
     volumes:
       - "./:/code"
+    depends_on:
+      - postgres
+    networks:
+      - acquaintance_internet
+      - acquaintance_pg_net
+
+  postgres:
+    image: postgres
+    restart: always
+    env_file:
+      - config/.env
+    environment:
+      - POSTGRES_DB=${PG_DBNAME}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+    container_name: postgres-acquaintance
+    volumes:
+      - acquaintance_pgdbdata:/var/lib/postgresql/data/
+    networks:
+      - acquaintance_pg_net
+
+volumes:
+  acquaintance_pgdbdata: null
+
+networks:
+  acquaintance_internet:
+    name: acquaintance_internet
+    driver: bridge
+  acquaintance_pg_net:
+    name: acquaintance_pg_net
+    driver: bridge
