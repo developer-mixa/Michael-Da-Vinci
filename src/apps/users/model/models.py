@@ -3,7 +3,7 @@ from sqlalchemy import String, Text, BigInteger, Enum
 import enum
 
 from src.apps.common.models.uuid_mixin import UUIDMixin
-from src.apps.common.models.config import Base
+from src.apps.common.models.meta import Base
 
 from datetime import date
 
