@@ -1,1 +1,1 @@
-DEFAULT_SCHEMA = 'api_data'
+DEFAULT_SCHEMA = 'public'
