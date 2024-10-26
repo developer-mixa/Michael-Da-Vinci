@@ -1,1 +1,1 @@
-from . import message
+from .registration import handler

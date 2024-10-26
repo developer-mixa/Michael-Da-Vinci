@@ -3,7 +3,8 @@ import uvicorn
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from src.apps.bot.handlers.message.router import router as test_router
+from src.apps.bot.handlers.registration.handler import router as registration_router
+from src.apps.users.router import router as users_router
 from config.settings import settings
 from src.apps.bot.bot import setup_bot, setup_dp
 from src.tasks import background_tasks
@@ -37,8 +38,8 @@ async def lifespan(app: FastAPI) -> None: # type: ignore
 
 def create_app() -> FastAPI:
     app = FastAPI(docs_url='/swagger', lifespan=lifespan)
-
     app.add_middleware(RawContextMiddleware, plugins=[plugins.CorrelationIdPlugin()])
+    app.include_router(users_router)
     return app
 
 async def start_polling():
@@ -52,7 +53,7 @@ async def start_polling():
     bot = Bot(token=settings.BOT_TOKEN)
     setup_bot(bot)
 
-    dp.include_router(test_router)
+    dp.include_router(registration_router)
     await bot.delete_webhook()
 
     logging.error('Dependencies launched')
