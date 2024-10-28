@@ -1,1 +1,1 @@
-from .registration import handler
+from .registration import router
