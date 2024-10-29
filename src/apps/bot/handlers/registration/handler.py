@@ -5,10 +5,10 @@ from ..states.registration import Registration
 from .router import router
 from src.apps.bot.keyboards.registration import OK, GENDERS, LOCATION
 from aiogram.types import ReplyKeyboardRemove
-from src.apps.bot.validators.validators import NameValidator, AgeValidator, GenderValidator
-from src.apps.bot.validators.errors import ValidationError
+from src.apps.bot.validators.validators import NameValidator, AgeValidator
+from src.apps.bot.validators import errors as validation
 from src.apps.bot.messages import register as msg
-from src.apps.bot.keyboards.texts import OK as MARKUP_OK 
+from src.apps.bot.keyboards.texts import OK as MARKUP_OK, BOY, GIRL
 
 @router.message(F.text == "/registration")
 async def start_registration(message: Message, state: FSMContext):
@@ -26,33 +26,51 @@ async def fill_name(message: Message, state: FSMContext):
 
 @router.message(Registration.name)
 async def fill_age(message: Message, state: FSMContext):
+    answer = msg.HOW_OLD_YOU
     try:
         name = NameValidator().validate(message)
         await state.update_data(name=name)
         await state.set_state(Registration.age)
-        await message.answer(msg.HOW_OLD_YOU)
-    except ValidationError as e:
-        await message.answer(e.message)
+    except validation.NameCanContainLettersError:
+        answer = msg.NAME_CAN_CONTAIN_LETTERS
+    except validation.TooLongNameError:
+        answer = msg.TOO_LONG_NAME
+    except validation.TooShortNameError:
+        answer = msg.TOO_SHORT_NAME
+    except validation.NameCannotContainSpacesError:
+        answer = msg.NAME_CANT_CONTAIN_SPACES
+    except validation.NameBeginCannotBeLowercaseError:
+        answer = msg.NAME_BEGIN_CANT_BE_LOWER
+    finally:
+        await message.answer(answer)
 
 @router.message(Registration.age)
 async def fill_gender(message: Message, state: FSMContext):
+    answer = msg.WHAT_YOUR_GENDER
+    reply_markup=None
     try:
         age = AgeValidator().validate(message)
         await state.update_data(age=age)
         await state.set_state(Registration.gender)
-        await message.answer(msg.WHAT_YOUR_GENDER, reply_markup=GENDERS)
-    except ValidationError as e:
-        await message.answer(e.message)
+        reply_markup = GENDERS
+    except validation.AgeMustBeIntegerError:
+        answer = msg.AGE_MUST_BE_INT
+    except validation.AgeLessThanZeroError:
+        answer = msg.AGE_LESS_ZERO
+    except validation.TooBigAgeError:
+        answer = msg.TOO_BIG_AGE
+    finally:
+        await message.answer(answer, reply_markup=reply_markup)
 
 @router.message(Registration.gender)
 async def fill_gender(message: Message, state: FSMContext):
-    try:
-        gender = GenderValidator().validate(message)
-        await state.update_data(gender=gender)
-        await state.set_state(Registration.description)
-        await message.answer(msg.ABOUT_YOU, reply_markup=ReplyKeyboardRemove())
-    except ValidationError as e:
-        await message.answer(e.message, reply_markup=GENDERS)
+    message_text = message.text
+    if message_text != BOY and message_text != GIRL:
+        await message.answer(msg.WRONG_GENDER)
+        return
+    await state.update_data(gender=message_text)
+    await state.set_state(Registration.description)
+    await message.answer(msg.ABOUT_YOU, reply_markup=ReplyKeyboardRemove())
 
 @router.message(Registration.description)
 async def fill_gender(message: Message, state: FSMContext):
