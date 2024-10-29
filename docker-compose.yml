@@ -4,7 +4,9 @@ services:
   web:
     build: .
     command: > 
-      sh -c "python3 ./src/apps/users/commands/migrate.py && python3 ./src/app.py"
+      sh -c "python3 ./src/apps/users/commands/migrate.py && ./commands/run_server.sh"
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
       - "./:/code"
     depends_on:
