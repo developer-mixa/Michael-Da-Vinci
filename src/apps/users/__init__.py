@@ -1,1 +1,1 @@
-from .controller import users_controller
+from .controller.users_controller import get_users

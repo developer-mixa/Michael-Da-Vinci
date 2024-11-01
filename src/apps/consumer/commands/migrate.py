@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from src.apps.common.models import meta
 from src.storage.db import engine
 
-from src.apps.users.model.models import User
+from src.apps.consumer.model.models import User
 
 async def migrate():
     try:
