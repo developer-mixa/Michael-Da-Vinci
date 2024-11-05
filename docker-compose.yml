@@ -11,6 +11,7 @@ services:
       - "./:/code"
     depends_on:
       - postgres
+      - rabbitmq
     networks:
       - acquaintance_internet
       - acquaintance_pg_net
@@ -32,6 +33,11 @@ services:
       - acquaintance_postgresql_data:/var/lib/postgresql/data/
     networks:
       - acquaintance_pg_net
+  rabbitmq:
+    image: rabbitmq:3.13.7-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
 volumes:
   acquaintance_postgresql_data: null
