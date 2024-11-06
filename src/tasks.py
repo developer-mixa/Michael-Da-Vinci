@@ -1,1 +1,0 @@
-background_tasks = set()
