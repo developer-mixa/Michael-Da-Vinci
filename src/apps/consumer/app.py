@@ -15,6 +15,7 @@ async def main() -> None:
     #logging.config.dictConfig(LOGGING_CONFIG)
     logger.info('Starting consumer...')
 
+
     queue_name = "user_messages"
     async with channel_pool.acquire() as channel:  # type: aio_pika.Channel
 

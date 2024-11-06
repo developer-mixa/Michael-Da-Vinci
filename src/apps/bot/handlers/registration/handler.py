@@ -95,30 +95,7 @@ async def fill_location(message: Message, state: FSMContext):
 async def fill_image(message: Message, state: FSMContext):
     if message.photo:
         await state.update_data(image=message.photo[-1].file_id)
-        data = await state.get_data()
-
         await message.answer(msg.REGISTER_IS_OVER)
         await state.clear()
-        async with channel_pool.acquire() as channel:  # type: aio_pika.Channel
-            exchange = await channel.declare_exchange(REGISTER_USER, ExchangeType.TOPIC, durable=True)
-            queue = await channel.declare_queue(
-                settings.USER_REGISTRATION_QUEUE_TEMPLATE.format(
-                    user_id=message.from_user.id,
-            ), durable=True
-            )
-            await queue.bind(
-                exchange,
-                settings.USER_REGISTRATION_QUEUE_TEMPLATE.format(
-                user_id=message.from_user.id,
-            ),
-        )
-            await exchange.publish(
-            aio_pika.Message(
-                msgpack.packb(
-                    RegistrationData(
-                        user_id=message.from_user.id,
-                        event='gift',
-                        **data
-                    ))), 'user_messages')
     else:
         await message.answer(msg.MUST_SEND_PHOTO)
