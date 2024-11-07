@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 async def main():
-    logger.info("Starting consumer: %s", settings)
+    logger.info("Starting consumer...")
     async with RegisterUpdatesRabbit() as rabbit:
         await rabbit.consume_messages(handle_message, queue_name=settings.REGISTRATION_QUEUE_NAME)
 
