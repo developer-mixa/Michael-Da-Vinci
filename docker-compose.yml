@@ -4,17 +4,20 @@ services:
   web:
     build: .
     command: > 
-      sh -c "python3 ./src/apps/consumer/commands/migrate.py && python3 ./src/main/app.py"
+      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/register_consumer/app.py "
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
       - "./:/code"
     depends_on:
-      - postgres
-      - rabbitmq
-    networks:
-      - acquaintance_internet
-      - acquaintance_pg_net
+      rabbitmq:
+          condition: service_healthy
+      postgres:
+        condition: service_started
+#    networks:
+#      - acquaintance_internet
+#      - acquaintance_pg_net
+#      - rabbit_internet
   postgres:
     image: postgres
     ports:
@@ -31,21 +34,36 @@ services:
     container_name: postgres-acquaintance
     volumes:
       - acquaintance_postgresql_data:/var/lib/postgresql/data/
-    networks:
-      - acquaintance_pg_net
+#    networks:
+#      - acquaintance_pg_net
   rabbitmq:
+    hostname: rabbitmq
     image: rabbitmq:3.13.7-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+#    networks:
+#      - rabbit_internet
 
 volumes:
   acquaintance_postgresql_data: null
+  rabbitmq-data: null
 
-networks:
-  acquaintance_internet:
-    name: acquaintance_internet
-    driver: bridge
-  acquaintance_pg_net:
-    name: acquaintance_pg_net
-    driver: bridge
+
+#networks:
+#  acquaintance_internet:
+#    name: acquaintance_internet
+#    driver: bridge
+#  acquaintance_pg_net:
+#    name: acquaintance_pg_net
+#    driver: bridge
+#  rabbit_internet:
+#    name: rabbit_internet
+#    driver: bridge

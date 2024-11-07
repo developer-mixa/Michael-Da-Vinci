@@ -1,6 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import F
+
+from src.apps.consumers.register_consumer.schema.registration import RegistrationData
 from ..states.registration import Registration
 from .router import router
 from src.apps.bot.keyboards.registration import OK, GENDERS, LOCATION
@@ -9,13 +11,13 @@ from src.apps.bot.validators.validators import NameValidator, AgeValidator
 from src.apps.bot.validators import errors as validation
 from src.apps.bot.messages import register as msg
 from src.apps.bot.keyboards.texts import OK as MARKUP_OK, BOY, GIRL
-import aio_pika
-import msgpack
-from aio_pika import ExchangeType
-from src.storage.rabbit import channel_pool
-from src.apps.consumer.actions import REGISTER_USER
-from config.settings import settings
-from src.apps.consumer.schema.registration import RegistrationData
+from ...producers.registration_producer import RegistrationProducer
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+registration_producer = RegistrationProducer()
 
 @router.message(F.text == "/registration")
 async def start_registration(message: Message, state: FSMContext):
@@ -95,7 +97,14 @@ async def fill_location(message: Message, state: FSMContext):
 async def fill_image(message: Message, state: FSMContext):
     if message.photo:
         await state.update_data(image=message.photo[-1].file_id)
+        data = await state.get_data()
         await message.answer(msg.REGISTER_IS_OVER)
         await state.clear()
+
+        reg_data = RegistrationData(user_id=message.from_user.id, **data)
+
+        async with registration_producer as producer:
+            await producer.produce_message(reg_data)
+
     else:
         await message.answer(msg.MUST_SEND_PHOTO)

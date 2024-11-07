@@ -1,9 +1,10 @@
 import logging
 from typing import Callable
 
+import aio_pika
 from aio_pika.abc import AbstractQueue
 
-from src.apps.consumer.base.rabbit_base import RabbitBase
+from src.apps.consumers.base.rabbit_base import RabbitBase
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ class RegisterUpdatesRabbit(RabbitBase):
 
     async def consume_messages(
             self,
-            message_callback: Callable,
+            message_callback: Callable[[aio_pika.Message], None],
             queue_name: str = "",
             prefetch_count: int = 1) -> None:
         channel = await self.channel()
@@ -40,8 +41,7 @@ class RegisterUpdatesRabbit(RabbitBase):
 
         queue = await self.declare_register_updates_queue(queue_name=queue_name, exclusive=not queue_name)
         async with queue.iterator() as queue_iter:
-            async for message in queue_iter:
+            async for message in queue_iter: # type: aio_pika.Message
                 async with message.process():
                     logger.info("Consume message...")
-
-
+                    message_callback(message)

@@ -1,1 +1,0 @@
-REGISTER_USER = 'register'

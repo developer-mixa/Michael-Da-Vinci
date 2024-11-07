@@ -2,7 +2,7 @@ from aio_pika.abc import AbstractRobustConnection, AbstractChannel
 from aio_pika.channel import Channel
 from aio_pika.connection import  Connection
 
-from src.apps.consumer.base.exceptions import RabbitException
+from src.apps.consumers.base.exceptions import RabbitException
 import aio_pika
 from config.settings import settings
 from aio_pika.pool import Pool
@@ -17,7 +17,7 @@ class RabbitBase:
         return await aio_pika.connect_robust(settings.rabbit_url)
 
     async def __get_channel(self) -> AbstractChannel:
-        async with self.connection_pool.acquire() as connection:
+        async with self._connection_pool.acquire() as connection:
             return await connection.channel()
 
 
@@ -34,13 +34,13 @@ class RabbitBase:
         async with self._connection_pool.acquire() as connection:
             return connection
 
-    def __enter__(self):
+    async def __aenter__(self):
         self._connection_pool = Pool(self.__get_connection, max_size=2)
         self._channel_pool = Pool(self.__get_channel, max_size=10)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         if not self._channel_pool.is_closed:
-            self._channel_pool.close()
+            await self._channel_pool.close()
         if not self._connection_pool.is_closed:
-            self._connection_pool.close()
+            await self._connection_pool.close()
