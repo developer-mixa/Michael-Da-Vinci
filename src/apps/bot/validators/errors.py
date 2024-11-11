@@ -23,13 +23,5 @@ class NameBeginCannotBeLowercaseError(ValidationError):
     pass
 
 
-class AgeMustBeIntegerError(ValidationError):
-    pass
-
-
-class AgeLessThanZeroError(ValidationError):
-    pass
-
-
-class TooBigAgeError(ValidationError):
+class WrongAgeFormatError(ValidationError):
     pass

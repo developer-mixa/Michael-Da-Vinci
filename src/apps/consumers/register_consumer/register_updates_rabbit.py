@@ -1,11 +1,15 @@
 import logging
-from typing import Callable
-
+import msgpack
 import aio_pika
 from aio_pika.abc import AbstractQueue
-
 from src.apps.consumers.base.rabbit_base import RabbitBase
 from config.settings import settings
+from typing import Any
+from .schema.registration import RegistrationData
+from src.storage.db import async_session
+
+from sqlalchemy import insert
+from ..model.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +37,6 @@ class RegisterUpdatesRabbit(RabbitBase):
 
     async def consume_messages(
             self,
-            message_callback: Callable[[aio_pika.Message], None],
             queue_name: str = "",
             prefetch_count: int = 1) -> None:
         channel = await self.channel()
@@ -44,4 +47,5 @@ class RegisterUpdatesRabbit(RabbitBase):
             async for message in queue_iter: # type: aio_pika.Message
                 async with message.process():
                     logger.info("Consume message...")
-                    message_callback(message)
+                    parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
+                    logger.info("Got messages %s", parsed_reg_data)

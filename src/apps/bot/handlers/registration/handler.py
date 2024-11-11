@@ -12,8 +12,11 @@ from src.apps.bot.validators import errors as validation
 from src.apps.bot.messages import register as msg
 from src.apps.bot.keyboards.texts import OK as MARKUP_OK, BOY, GIRL
 from ...producers.registration_producer import RegistrationProducer
+from datetime import datetime
 
 import logging
+
+from ...validators.utils import AGE_FORMAT
 
 logger = logging.getLogger(__name__)
 
@@ -59,15 +62,12 @@ async def fill_gender(message: Message, state: FSMContext):
     reply_markup=None
     try:
         age = AgeValidator().validate(message)
-        await state.update_data(age=age)
+        format_date = datetime.strptime(age, AGE_FORMAT).date()
+        await state.update_data(age=format_date)
         await state.set_state(Registration.gender)
         reply_markup = GENDERS
-    except validation.AgeMustBeIntegerError:
-        answer = msg.AGE_MUST_BE_INT
-    except validation.AgeLessThanZeroError:
-        answer = msg.AGE_LESS_ZERO
-    except validation.TooBigAgeError:
-        answer = msg.TOO_BIG_AGE
+    except validation.WrongAgeFormatError:
+        answer = msg.HOW_OLD_YOU
     finally:
         await message.answer(answer, reply_markup=reply_markup)
 

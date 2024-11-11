@@ -1,5 +1,7 @@
 from . import errors as e
 from .base.base_validator import BaseTgValidator
+from datetime import datetime
+from .utils import AGE_FORMAT
 
 MAX_NAME_LEN = 15
 MIN_NAME_LEN = 2
@@ -22,9 +24,7 @@ class NameValidator(BaseTgValidator):
 
 class AgeValidator(BaseTgValidator):
     def _do_validate(self, message: str):
-        if not message.isdigit():
-            raise e.AgeMustBeIntegerError
-        if int(message) < MIN_AGE:
-            raise e.AgeLessThanZeroError
-        if int(message) >= MAX_AGE:
-            raise e.TooBigAgeError
+        try:
+            datetime.strptime(message, AGE_FORMAT).date()
+        except Exception:
+            raise e.WrongAgeFormatError
