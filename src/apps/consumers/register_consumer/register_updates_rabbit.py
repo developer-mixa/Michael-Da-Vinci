@@ -4,12 +4,9 @@ import aio_pika
 from aio_pika.abc import AbstractQueue
 from src.apps.consumers.base.rabbit_base import RabbitBase
 from config.settings import settings
-from typing import Any
 from .schema.registration import RegistrationData
 from src.storage.db import async_session
-
-from sqlalchemy import insert
-from ..model.models import User
+from ..mappers.user_mapper import user_from_reg_data
 
 logger = logging.getLogger(__name__)
 
@@ -48,4 +45,8 @@ class RegisterUpdatesRabbit(RabbitBase):
                 async with message.process():
                     logger.info("Consume message...")
                     parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
-                    logger.info("Got messages %s", parsed_reg_data)
+                    logger.info("Got message %s", parsed_reg_data)
+                    user = user_from_reg_data(parsed_reg_data)
+                    async with async_session() as db:
+                        db.add(user)
+                        await db.commit()
