@@ -9,7 +9,9 @@ WHAT_YOUR_GENDER = 'Какой у тебя пол?'
 ABOUT_YOU = 'Расскажи о себе'
 WHERE_YOU_FROM = 'Из какого ты города?'
 SEND_YOUR_PHOTO = 'Теперь пришли своё фото, его будут видеть другие пользователи'
-REGISTER_IS_OVER = 'Регистрация завершена!'
+PUSH_REGISTER_QUERY = 'Заявка отправлена в очередь на регистрацию, ожидайте...'
+SUCCESS_REGISTER = 'Вы успешно зарегистрировались!'
+ALREADY_REGISTER = 'Вы уже зарегистрированы!'
 MUST_SEND_PHOTO = 'Отправьте фото'
 
 # validation error messages
