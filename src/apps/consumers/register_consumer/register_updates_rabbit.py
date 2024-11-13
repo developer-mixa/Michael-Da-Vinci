@@ -20,7 +20,7 @@ class RegisterUpdatesRabbit(BaseConsumer):
 
     async def processing_message(self, message: Message):
         parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
-        logger.info("Got message %s", parsed_reg_data)
+        logger.info("Received message %s", parsed_reg_data)
         user = user_from_reg_data(parsed_reg_data)
         channel = await self.channel()
         exchange = await channel.get_exchange(settings.REGISTRATION_EXCHANGE_NAME)

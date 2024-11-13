@@ -1,12 +1,6 @@
-import asyncio
-
-import msgpack
-from aio_pika.exceptions import QueueEmpty
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import F
-
-from config.settings import settings
 from src.apps.consumers.register_consumer.schema.registration import RegistrationData
 from ..states.registration import Registration
 from .router import router

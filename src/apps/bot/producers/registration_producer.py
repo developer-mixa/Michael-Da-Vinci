@@ -1,7 +1,6 @@
 import asyncio
 from typing import Callable, Coroutine
 
-from aio_pika import Message
 from aio_pika.exceptions import QueueEmpty
 
 from src.apps.consumers.register_consumer.register_updates_rabbit import RegisterUpdatesRabbit
