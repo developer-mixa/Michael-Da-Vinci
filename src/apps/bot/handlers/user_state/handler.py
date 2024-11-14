@@ -8,6 +8,8 @@ from aiogram import F
 
 from src.apps.bot.messages import update_state as msg
 
+from src.apps.bot.commands.commands import ACTIVATING, DEACTIVATING
+
 from config.settings import settings
 
 from ...producers.user_state_producer import UserStateProducer
@@ -16,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 user_state_producer = UserStateProducer()
 
-@router.message(F.text == '/activate')
+@router.message(F.text == ACTIVATING)
 async def activate_profile(message: Message):
     await __set_active_profile(message, True)
 
-@router.message(F.text == '/deactivate')
+@router.message(F.text == DEACTIVATING)
 async def deactivate_profile(message: Message):
     await __set_active_profile(message, False)
 
