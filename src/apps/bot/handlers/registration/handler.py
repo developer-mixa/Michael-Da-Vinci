@@ -1,6 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import F
+
+from config.settings import settings
 from src.apps.consumers.register_consumer.schema.registration import RegistrationData
 from ..states.registration import Registration
 from .router import router
@@ -100,8 +102,12 @@ async def fill_image(message: Message, state: FSMContext):
         reg_data = RegistrationData(user_id=user_id, **data)
 
         async with registration_producer as producer:
-            await producer.produce_message(reg_data)
-            await producer.wait_register_answer(user_id, lambda is_success_reg: __push_register_answer(is_success_reg, message))
+            await producer.base_produce_message(reg_data, settings.REGISTRATION_QUEUE_NAME)
+            await producer.wait_answer_for_user(
+                settings.REGISTRATION_QUEUE_NAME,
+                user_id,
+                lambda is_success_reg: __push_register_answer(is_success_reg, message)
+            )
     else:
         await message.answer(msg.MUST_SEND_PHOTO)
 
