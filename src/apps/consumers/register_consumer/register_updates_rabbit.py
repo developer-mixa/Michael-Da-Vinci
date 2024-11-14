@@ -22,20 +22,13 @@ class RegisterUpdatesRabbit(BaseConsumer):
         parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
         logger.info("Received message %s", parsed_reg_data)
         user = user_from_reg_data(parsed_reg_data)
-        channel = await self.channel()
-        exchange = await channel.get_exchange(settings.REGISTRATION_EXCHANGE_NAME)
         queue_name = f'{settings.REGISTRATION_QUEUE_NAME}.{parsed_reg_data["user_id"]}'
 
         try:
             async with async_session() as db:
                 db.add(user)
                 await db.commit()
-                await self.__publish_message_to_user(exchange, True, queue_name)
+                await self.publish_message_to_user(True, queue_name)
         except IntegrityError:
             logger.info("This user with this data is already registered: %s", parsed_reg_data)
-            await self.__publish_message_to_user(exchange, False, queue_name)
-
-    @staticmethod
-    async def __publish_message_to_user(exchange: AbstractExchange, is_success_register: bool, queue_name: str):
-        message = aio_pika.Message(msgpack.packb(is_success_register))
-        await exchange.publish(message, queue_name)
+            await self.publish_message_to_user(False, queue_name)
