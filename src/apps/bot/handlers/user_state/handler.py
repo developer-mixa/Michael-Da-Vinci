@@ -13,7 +13,7 @@ from src.apps.bot.commands.commands import ACTIVATING, DEACTIVATING, UPDATE_STAT
 
 from config.settings import settings
 
-from src.apps.bot.keyboards.update_profile import inline_user_state_fields, BACK_TO_MENU
+from src.apps.bot.keyboards.update_profile import get_button_name_by_key, inline_user_state_fields, BACK_TO_MENU
 
 from ...producers.user_state_producer import UserStateProducer
 from aiogram.fsm.context import FSMContext
@@ -38,15 +38,35 @@ async def update_profile(message: Message):
 
 @router.callback_query(F.data.startswith(CALLBACK_UPDATE_PREFIX))
 async def update_callback(callback: CallbackQuery, state: FSMContext):
-    await callback.answer("")
-    await callback.message.edit_text('Меняйте имя', reply_markup=BACK_TO_MENU)
-    await state.set_state(UpdateProfile.update_field)
+    callback_field = __get_callback_field(callback.data)
+    changed_field = get_button_name_by_key(callback_field)
 
-@router.message(UpdateProfile.update_field)
+    await callback.answer("")
+    await callback.message.edit_text(f'Меняйте {changed_field}', reply_markup=BACK_TO_MENU)
+    
+    await state.update_data(update_field_name=callback_field)
+
+    await state.set_state(UpdateProfile.update_field_value)
+
+@router.message(UpdateProfile.update_field_value)
 async def fill_update_info(message: Message, state: FSMContext):
-    await state.update_data(update_field=message.text)
+    await state.update_data(update_field_value=message.text)
+    data = await state.get_data()
     await state.clear()
-    await message.answer('Изменения приняты', reply_markup=ReplyKeyboardRemove())
+    await message.answer('Изменения отправлены в очередь...', reply_markup=ReplyKeyboardRemove())
+
+    user_id = message.from_user.id
+
+    update_user_data = UpdateUserData(user_id=user_id, **{data['update_field_name'] : data['update_field_value']})
+
+    async with user_state_producer as producer:
+        logger.info("Producing message...")
+        await producer.base_produce_message(update_user_data, settings.UPDATE_USER_QUEUE_NAME)
+        await producer.wait_answer_for_user(
+            settings.UPDATE_USER_QUEUE_NAME,
+            user_id,
+            lambda is_success: __push_update_profile_answer(is_success, message),
+        )
 
 @router.callback_query(F.data == CALLBACK_BACK_MENU)
 async def back_to_menu_callback(callback: CallbackQuery, state: FSMContext):
@@ -74,7 +94,12 @@ async def __set_active_profile(message: Message, is_active: bool):
             user_id,
             lambda is_success: __push_set_active_answer(is_active, is_success, message),
         )
+
 async def __push_set_active_answer(is_active: bool, is_success: bool, message: Message):
     success_msg = msg.PROFILE_HAS_BEEN_ACTIVATED if is_active else msg.PROFILE_HAS_BEEN_DEACTIVATED
     answer = success_msg if is_success else msg.SOMETHING_WENT_WRONG
     await message.answer(answer)
+
+async def __push_update_profile_answer(is_success: bool, message: Message):
+    result_msg = msg.PROFILE_HAS_BEEN_UPDATED if is_success else msg.SOMETHING_WENT_WRONG
+    await message.answer(result_msg)
