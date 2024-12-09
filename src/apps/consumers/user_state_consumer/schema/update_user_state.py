@@ -7,4 +7,4 @@ class UpdateUserData(TypedDict):
     location: str | None
     image: str | None
     user_id: int
-    is_active: bool | None
+    status: bool | None

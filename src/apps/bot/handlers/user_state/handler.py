@@ -84,7 +84,7 @@ async def __set_active_profile(message: Message, is_active: bool):
 
     user_id = message.from_user.id
 
-    update_user_data = UpdateUserData(user_id=user_id, is_active=is_active)
+    update_user_data = UpdateUserData(user_id=user_id, status=is_active)
 
     async with user_state_producer as producer:
         logger.info("Producing message...")

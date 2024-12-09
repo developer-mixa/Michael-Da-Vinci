@@ -10,7 +10,7 @@ from src.apps.consumers.base.base_consumer import BaseConsumer
 from src.apps.consumers.user_state_consumer.schema.update_user_state import UpdateUserData
 from src.storage.db import async_session
 from ..errors.errors import NonRegisteredError
-from ..model.models import User
+from ..model.models import User, UserStatus
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,10 @@ class UpdateStateRabbit(BaseConsumer):
                     raise NonRegisteredError
                 for param, value in parsed_user_data.items():
                     if value and param != 'user_id':
-                        setattr(user, param, value)
+                        if param == 'status': # In a good way, you need to serialize the enum here, but the deadlines are tight
+                            setattr(user, param, UserStatus.ACTIVE if value else UserStatus.NO_ACTIVE)
+                        else:
+                            setattr(user, param, value)
                 await db.commit()
                 await self.publish_message_to_user(True, queue_name)
         except NonRegisteredError:
