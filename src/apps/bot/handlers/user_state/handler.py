@@ -2,6 +2,7 @@ import logging
 
 from aiogram.types import Message, CallbackQuery
 
+from src.apps.bot.handlers.states.update_profile import UpdateProfile
 from src.apps.consumers.user_state_consumer.schema.update_user_state import UpdateUserData
 from .router import router
 from aiogram import F
@@ -15,6 +16,9 @@ from config.settings import settings
 from src.apps.bot.keyboards.update_profile import inline_user_state_fields, BACK_TO_MENU
 
 from ...producers.user_state_producer import UserStateProducer
+from aiogram.fsm.context import FSMContext
+from aiogram.types import ReplyKeyboardRemove
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +37,21 @@ async def update_profile(message: Message):
     await message.answer(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
 
 @router.callback_query(F.data == CALLBACK_UPDATE)
-async def update_callback(callback: CallbackQuery):
+async def update_callback(callback: CallbackQuery, state: FSMContext):
     await callback.answer("")
     await callback.message.edit_text('Меняйте имя', reply_markup=BACK_TO_MENU)
+    await state.set_state(UpdateProfile.update_field)
+
+@router.message(UpdateProfile.update_field)
+async def fill_update_info(message: Message, state: FSMContext):
+    await state.update_data(update_field=message.text)
+    await state.clear()
+    await message.answer('Изменения приняты', reply_markup=ReplyKeyboardRemove())
 
 @router.callback_query(F.data == CALLBACK_BACK_MENU)
-async def back_to_menu_callback(callback: CallbackQuery):
+async def back_to_menu_callback(callback: CallbackQuery, state: FSMContext):
     await callback.answer("")
+    await state.clear()
     await callback.message.edit_text(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
 
 async def __set_active_profile(message: Message, is_active: bool):
