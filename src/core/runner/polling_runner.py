@@ -9,6 +9,7 @@ from aiogram import Bot, Dispatcher
 from config.settings import settings
 from src.apps.bot.handlers.registration.router import router as registration_router
 from src.apps.bot.handlers.user_state.router import router as user_state_router
+from src.apps.bot.handlers.acquaintance.router import router as acquaintance_router
 from src.apps.bot.menu.commands_menu import bot_commands
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,7 @@ class PollingRunner(BotRunner):
 
         self.__dp.include_router(registration_router)
         self.__dp.include_router(user_state_router)
+        self.__dp.include_router(acquaintance_router)
         await self.__bot.delete_webhook()
 
         logging.error('Dependencies launched')
