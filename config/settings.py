@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     PG_HOST: str
     PG_PORT: int
 
+    MINIO_USER: str
+    MINIO_PASSWORD: str
+    MINIO_HOST: str
+
     SERVER_PORT: int
 
     USER_REGISTRATION_QUEUE_TEMPLATE: str = 'user_registration.{user_id}'
