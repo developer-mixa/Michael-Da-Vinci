@@ -41,7 +41,7 @@ class S3StorageClient(BaseStorageClient):
 
     def _put_file(self, object_name: str, file: io.BytesIO):
         self.client.put_object(self.bucket_name, object_name, file, file.getbuffer().nbytes)
-        logger.info('File : %s was uploaded', file)
+        logger.info('File : %s was uploaded', file.name)
     
     def _get_file(self, object_name: str) -> bytes:
         try:
