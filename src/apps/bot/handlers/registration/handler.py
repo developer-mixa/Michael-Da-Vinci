@@ -83,12 +83,6 @@ async def fill_gender(message: Message, state: FSMContext):
 @router.message(Registration.description)
 async def fill_gender(message: Message, state: FSMContext):
     await state.update_data(description=message.text)
-    await state.set_state(Registration.location)
-    await message.answer(msg.WHERE_YOU_FROM, reply_markup=LOCATION)
-
-@router.message(Registration.location)
-async def fill_location(message: Message, state: FSMContext):
-    await state.update_data(location=message.text)
     await state.set_state(Registration.image)
     await message.answer(msg.SEND_YOUR_PHOTO, reply_markup=ReplyKeyboardRemove())
 
