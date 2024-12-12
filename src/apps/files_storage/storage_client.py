@@ -1,3 +1,4 @@
+import io
 import logging
 from minio import Minio
 
@@ -21,9 +22,9 @@ class S3StorageClient(BaseStorageClient):
             secure=False
         )
 
-    def upload_file(self, file_path: str):
+    def upload_file(self, object_name: str, file: io.BytesIO):
         self._create_busket()
-        self._put_file(file_path)
+        self._put_file(object_name, file)
 
     def get_file(self):
         pass
@@ -36,9 +37,8 @@ class S3StorageClient(BaseStorageClient):
         else:
             logger.info("This busket is already exists - %s", self.bucket_name)
 
-    def _put_file(self, file_path: str):
-        object_name = file_path.split('/')[-1]
-        self.client.fput_object(self.bucket_name, object_name, file_path,)
-        logger.info('File : %s was uploaded', file_path)
+    def _put_file(self, object_name: str, file: io.BytesIO):
+        self.client.put_object(self.bucket_name, object_name, file, file.getbuffer().nbytes)
+        logger.info('File : %s was uploaded', file)
 
 images_storage: BaseStorageClient = S3StorageClient(bucket_name='user-images') 

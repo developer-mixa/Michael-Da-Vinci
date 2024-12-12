@@ -23,7 +23,6 @@ class User(Base, UUIDMixin):
 
     name: Mapped[str] = mapped_column(String(MAX_NAME_LEN))
     description: Mapped[str] = mapped_column(String(MAX_DESCRIPTION_LEN))
-    image: Mapped[str] = mapped_column(Text)
     dateOfBirth: Mapped[date]
     telegram_id = mapped_column(BigInteger, unique=True)
     status = mapped_column(Enum(UserStatus))

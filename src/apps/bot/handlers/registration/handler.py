@@ -1,8 +1,10 @@
+import io
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import F
 
 from config.settings import settings
+from src.apps.bot.bot import get_bot
 from src.apps.consumers.register_consumer.schema.registration import RegistrationData
 from ..states.registration import Registration
 from .router import router
@@ -93,7 +95,8 @@ async def fill_location(message: Message, state: FSMContext):
 @router.message(Registration.image)
 async def fill_image(message: Message, state: FSMContext):
     if message.photo:
-        await state.update_data(image=message.photo[-1].file_id)
+        dowloaded_image = await get_bot().download(file=message.photo[-1].file_id)
+        await state.update_data(image=dowloaded_image.read())
         data = await state.get_data()
         await message.answer(msg.PUSH_REGISTER_QUERY)
         await state.clear()

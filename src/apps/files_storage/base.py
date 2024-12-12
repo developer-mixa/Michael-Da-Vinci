@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
+import io
 
 class BaseStorageClient(ABC):
 
     @abstractmethod
-    def upload_file(self, file_path: str):
+    def upload_file(self, object_name: str, file: io.BytesIO):
         pass
 
     @abstractmethod
