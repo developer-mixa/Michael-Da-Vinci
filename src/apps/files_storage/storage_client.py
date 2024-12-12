@@ -26,8 +26,10 @@ class S3StorageClient(BaseStorageClient):
         self._create_busket()
         self._put_file(object_name, file)
 
-    def get_file(self):
-        pass
+    def get_file(self, object_name: str) -> bytes:
+        if not self.client.bucket_exists(self.bucket_name):
+            return None
+        return self._get_file(object_name)
     
     def _create_busket(self):
         found = self.client.bucket_exists(self.bucket_name)
@@ -40,5 +42,14 @@ class S3StorageClient(BaseStorageClient):
     def _put_file(self, object_name: str, file: io.BytesIO):
         self.client.put_object(self.bucket_name, object_name, file, file.getbuffer().nbytes)
         logger.info('File : %s was uploaded', file)
+    
+    def _get_file(self, object_name: str) -> bytes:
+        try:
+            response = self.client.get_object(self.bucket_name, object_name)
+        finally:
+            data_bytes = response.data
+            response.close()
+            response.release_conn()
+            return data_bytes
 
 images_storage: BaseStorageClient = S3StorageClient(bucket_name='user-images') 

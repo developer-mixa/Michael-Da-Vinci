@@ -20,6 +20,8 @@ services:
         condition: service_started
       user_state_consumer:
         condition: service_started
+      acquaintance_consumer:
+        condition: service_started
     networks:
       - acquaintance_internet
       - acquaintance_pg_net
@@ -45,6 +47,22 @@ services:
     restart: always
     command: >
       sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/user_state_consumer/app.py"
+    volumes:
+      - "./:/code"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - acquaintance_internet
+      - acquaintance_pg_net
+      - rabbit_internet
+  acquaintance_consumer:
+    build: .
+    restart: always
+    command: >
+      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/acquaintance_consumer/app.py"
     volumes:
       - "./:/code"
     depends_on:

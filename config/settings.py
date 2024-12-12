@@ -30,10 +30,12 @@ class Settings(BaseSettings):
     USER_REGISTRATION_QUEUE_TEMPLATE: str = 'user_registration.{user_id}'
 
     REGISTRATION_EXCHANGE_NAME: str = 'registration_exchange'
+    ACQUAINTANCE_EXCHANGE_NAME: str = 'acquaintance_exchange'
     UPDATE_USER_EXCHANGE_NAME: str = 'update_user_exchange'
 
 
     REGISTRATION_QUEUE_NAME: str = 'registration_queue'
+    ACQUAINTANCE_QUEUE_NAME: str = 'acquaintance_queue'
     UPDATE_USER_QUEUE_NAME: str = 'update_user_queue'
 
     @property

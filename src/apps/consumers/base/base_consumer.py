@@ -90,6 +90,7 @@ class BaseConsumer(RabbitBase, ABC):
 
     async def publish_message_to_user(self, message, queue_name: str):
         await self.declare_exchange()
+        await self.declare_queue(queue_name)
         channel = await self.channel()
         exchange = await channel.get_exchange(self.__exchange_name__)
         message = aio_pika.Message(msgpack.packb(message))
