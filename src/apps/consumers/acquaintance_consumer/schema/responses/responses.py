@@ -45,3 +45,7 @@ class AcquaintanceResponse(TypedDict):
     response: AcquaintanceResponseStatus
     data: UserData | None = None
 
+
+ACQUAINTANCE_UNEXCEPTED_ERROR = AcquaintanceResponse(response=AcquaintanceResponseStatus.UNEXCEPTED_ERROR.serialize())
+ACQUAINTANCE_NON_REGISTERED = AcquaintanceResponse(response=AcquaintanceResponseStatus.NON_REGISTERED.serialize())
+ACQUAINTANCE_NOT_FOUND = AcquaintanceResponse(response=AcquaintanceResponseStatus.NOT_FOUND.serialize())

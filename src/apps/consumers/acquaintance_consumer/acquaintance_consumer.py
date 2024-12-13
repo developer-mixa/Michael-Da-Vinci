@@ -1,19 +1,32 @@
-from asyncio import QueueEmpty
 import logging
+from asyncio import QueueEmpty
+
 import msgpack
 from aio_pika import Message
-from sqlalchemy import select
-from src.apps.consumers.acquaintance_consumer.schema.acquintance_data import BaseAcquaintanceData, MutualityData, SearchAcquaintanceData, LikeUserData
-from src.apps.consumers.acquaintance_consumer.schema.responses.__main__ import AcquaintanceResponse, AcquaintanceResponseStatus, LikedResponseStatus
-from src.apps.consumers.base.base_consumer import BaseConsumer
+
 from config.settings import settings
+from src.apps.consumers.acquaintance_consumer.schema.acquintance_data import (
+    BaseAcquaintanceData,
+    LikeUserData,
+    MutualityData,
+    SearchAcquaintanceData,
+)
+from src.apps.consumers.acquaintance_consumer.schema.responses.responses import (
+    ACQUAINTANCE_NON_REGISTERED,
+    ACQUAINTANCE_NOT_FOUND,
+    ACQUAINTANCE_UNEXCEPTED_ERROR,
+    AcquaintanceResponse,
+    AcquaintanceResponseStatus,
+    LikedResponseStatus,
+)
+from src.apps.consumers.base.base_consumer import BaseConsumer
 from src.apps.consumers.common.user_data import UserData
 from src.apps.consumers.model.models import User
-from .data.acquaintance_repository import AcquaintanceRepository
-from ..errors.errors import NonRegisteredError
-
 from src.apps.files_storage.storage_client import images_storage
 
+from ..errors.errors import NonRegisteredError
+from .actions import LIKE, SEARCH
+from .data.acquaintance_repository import AcquaintanceRepository
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +42,10 @@ class AcquaintanceRabbit(BaseConsumer):
         acquaintance_data: BaseAcquaintanceData = msgpack.unpackb(message.body)
         logger.info("Received message %s", acquaintance_data['action'])
         acquaintance_action = acquaintance_data['action']
-        if acquaintance_action == 'search':
+        if acquaintance_action == SEARCH:
             await self.search_users(acquaintance_data)
-        elif acquaintance_action == 'like_user':
+        elif acquaintance_action == LIKE:
             await self.like_user(acquaintance_data)
-        else:
-            # Exception
-            pass
     
     async def search_users(self, acquaintance_data: SearchAcquaintanceData):
         search_queue_name: str = f'{settings.ACQUAINTANCE_QUEUE_NAME}.{acquaintance_data["user_id"]}'
@@ -46,12 +56,12 @@ class AcquaintanceRabbit(BaseConsumer):
                 user_data = UserData.from_db_user(found_user, found_user_image)
                 await self.publish_message_to_user(AcquaintanceResponse(response=AcquaintanceResponseStatus.FOUND.serialize(), data=user_data), search_queue_name)
             else:
-                await self.publish_message_to_user(AcquaintanceResponse(response=AcquaintanceResponseStatus.NOT_FOUND.serialize()), search_queue_name)
+                await self.publish_message_to_user(ACQUAINTANCE_NOT_FOUND, search_queue_name)
         except NonRegisteredError:
-            await self.publish_message_to_user(AcquaintanceResponse(response=AcquaintanceResponseStatus.NON_REGISTERED.serialize()), search_queue_name)
+            await self.publish_message_to_user(ACQUAINTANCE_NON_REGISTERED, search_queue_name)
         except BaseException as e:
             logger.error('Unexcepted exception: %s', str(e))
-            await self.publish_message_to_user(AcquaintanceResponse(response=AcquaintanceResponseStatus.UNEXCEPTED_ERROR.serialize()), search_queue_name)
+            await self.publish_message_to_user(ACQUAINTANCE_UNEXCEPTED_ERROR, search_queue_name)
 
     async def like_user(self, acquaintance_data: LikeUserData):
         await self.declare_exchange()
