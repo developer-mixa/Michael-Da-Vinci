@@ -6,6 +6,7 @@ from aio_pika import Message
 
 from src.apps.consumers.base.base_consumer import BaseConsumer
 from config.settings import settings
+from src.core.logger.multiline_handler import MultiLineHandler
 from .schema.registration import RegistrationData
 from src.storage.db import async_session
 from ..mappers.user_mapper import user_from_reg_data
@@ -13,6 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from src.apps.files_storage.storage_client import images_storage
 
 logger = logging.getLogger(__name__)
+logger.addHandler(MultiLineHandler(line_length=150))
 
 class RegisterUpdatesRabbit(BaseConsumer):
 
