@@ -88,7 +88,7 @@ class BaseConsumer(RabbitBase, ABC):
                 logger.info("Try to get value from queue...")
                 is_reg = await queue.get(no_ack=no_ack)
                 is_success: bool = msgpack.unpackb(is_reg.body)
-                logger.info("Got value from queue...")
+                logger.info("Got value from queue %s", is_success)
                 await success_callback(is_success)
                 break
             except QueueEmpty:
