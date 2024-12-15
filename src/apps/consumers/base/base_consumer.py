@@ -87,9 +87,9 @@ class BaseConsumer(RabbitBase, ABC):
             try:
                 logger.info("Try to get value from queue...")
                 is_reg = await queue.get(no_ack=no_ack)
-                is_success: bool = msgpack.unpackb(is_reg.body)
-                logger.info("Got value from queue %s", is_success)
-                await success_callback(is_success)
+                queue_value: bool = msgpack.unpackb(is_reg.body)
+                logger.debug("Got value from queue %s", queue_value)
+                await success_callback(queue_value)
                 break
             except QueueEmpty:
                 await asyncio.sleep(1)
