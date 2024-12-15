@@ -5,9 +5,7 @@ from src.apps.bot.commands.commands import CALLBACK_UPDATE_PREFIX, CALLBACK_BACK
 
 FORM_FIELDS = [
     ['Имя', 'name'],
-    ['Описание', 'description'],
-    ['Местоположение', 'location'],
-    ['Изображение', 'image']
+    ['Описание', 'description']
 ]
 
 def get_button_name_by_key(key: str) -> str:
