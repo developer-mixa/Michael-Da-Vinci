@@ -21,11 +21,7 @@ class UpdateStateRabbit(BaseConsumer):
     async def processing_message(self, message: Message):
         parsed_user_data: UpdateUserData = msgpack.unpackb(message.body)
         logger.info("Received message: %s", parsed_user_data)
-
-        channel = await self.channel()
-        exchange = await channel.get_exchange(settings.UPDATE_USER_EXCHANGE_NAME)
         queue_name = f'{settings.UPDATE_USER_QUEUE_NAME}.{parsed_user_data["user_id"]}'
-
         try:
             async with async_session() as db:
                 user: User = await db.scalar(select(User).where(User.telegram_id == parsed_user_data.get('user_id')))

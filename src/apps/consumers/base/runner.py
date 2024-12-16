@@ -13,9 +13,9 @@ class ConsumerRunner:
         self.__queue_name = queue_name
 
     def run(self):
-        asyncio.run(self.__run())
+        asyncio.run(self._run())
 
-    async def __run(self):
+    async def _run(self):
         logger.info("Starting consumer...")
         async with self.__consumer as rabbit:
             await rabbit.consume_messages(queue_name=self.__queue_name)

@@ -31,6 +31,8 @@ services:
   register_consumer:
     build: .
     restart: always
+    ports:
+      - "${REGISTRATION_CONSUMER_PORT}:${REGISTRATION_CONSUMER_PORT}"
     command: >
       sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/register_consumer/app.py"
     volumes:
@@ -49,12 +51,16 @@ services:
     restart: always
     command: >
       sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/user_state_consumer/app.py"
+    ports:
+      - "${USER_STATE_CONSUMER_PORT}:${USER_STATE_CONSUMER_PORT}"
     volumes:
       - "./:/code"
     depends_on:
       rabbitmq:
         condition: service_healthy
       postgres:
+        condition: service_started
+      prometheus:
         condition: service_started
     networks:
       - acquaintance_internet
@@ -63,6 +69,8 @@ services:
   acquaintance_consumer:
     build: .
     restart: always
+    ports:
+      - "${ACQUINTANCE_CONSUMER_PORT}:${ACQUINTANCE_CONSUMER_PORT}"
     command: >
       sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/acquaintance_consumer/app.py"
     volumes:
