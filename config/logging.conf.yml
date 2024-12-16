@@ -18,12 +18,12 @@ root:
 loggers:
   'backend_logger':
     level: INFO
-    propagate: yes
+    propagate: no
     handlers: [console_handler_backend]
   'consumer_logger':
     level: INFO
-    propagate: yes
+    propagate: no
     handlers: [console_handler_consumer]
   'uvicorn':
     level: INFO
-    propagate: yes
+    propagate: no
