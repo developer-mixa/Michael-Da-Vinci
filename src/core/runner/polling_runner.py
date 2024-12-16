@@ -6,10 +6,7 @@ logger = logging.getLogger(__name__)
 
 class PollingRunner(BotRunner):
 
-    def run(self):
-        asyncio.run(self.__run())
-
-    async def __run(self):
+    async def run(self):
         logger.info('Starting polling')
 
         await self._setup()
