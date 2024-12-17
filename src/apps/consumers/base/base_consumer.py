@@ -8,11 +8,11 @@ from aio_pika import Message
 from aio_pika.abc import AbstractQueue
 from src.apps.consumers.base.rabbit_base import RabbitBase
 from aio_pika.exceptions import QueueEmpty
-#from src.apps.common.analytics.metrics import TOTAL_CONSUMERS_RECEIVE_MESSAGES
-
 from abc import ABC, abstractmethod
 
-from src.apps.consumers.common.analytics import TOTAL_CONSUMER_RECEIVE_MESSAGES
+from src.apps.consumers.common.analytics import TOTAL_CONSUMER_RECEIVE_MESSAGES, DECLARE_QUEUE_LATENCY, PRODUCE_MESSAGE_LATENCY, PROCESSING_MESSAGE_LATENCY
+
+from src.core.utils.time import analyze_execution_time 
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class BaseConsumer(RabbitBase, ABC):
         channel = await self.channel()
         await channel.declare_exchange(name=self.__exchange_name__, durable=True)
 
+    @analyze_execution_time(DECLARE_QUEUE_LATENCY)
     async def declare_queue(
         self,
         queue_name: str = "",
@@ -57,6 +58,7 @@ class BaseConsumer(RabbitBase, ABC):
                     logger.info("Consume message...")
                     await self.processing_message(message)
 
+    @analyze_execution_time(PRODUCE_MESSAGE_LATENCY)
     async def base_produce_message(self, data: TypedDict, queue: str):
         logger.info("Producing message...")
 
@@ -98,7 +100,7 @@ class BaseConsumer(RabbitBase, ABC):
             except QueueEmpty:
                 await asyncio.sleep(1)
 
-
+    @analyze_execution_time(PRODUCE_MESSAGE_LATENCY)
     async def publish_message_to_user(self, message, queue_name: str):
         await self.declare_exchange()
         await self.declare_queue(queue_name)
@@ -109,5 +111,6 @@ class BaseConsumer(RabbitBase, ABC):
         logger.info("Message published in queue: %s", queue_name)
 
     @abstractmethod
+    @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
     async def processing_message(self, message: Message):
         pass
