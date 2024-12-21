@@ -19,5 +19,5 @@ class UserData(TypedDict):
             'description': user.description,
             'gender': 'Девушка' if user.gender == Gender.GIRL else 'Парень',
             'image': user_image,
-            'user_id': user.telegram_id
+            'user_id': user.telegram_id,
         }

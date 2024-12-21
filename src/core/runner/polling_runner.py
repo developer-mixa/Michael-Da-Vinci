@@ -1,8 +1,9 @@
-import asyncio
-from src.core.runner.base.bot_runner import BotRunner
 import logging
 
+from src.core.runner.base.bot_runner import BotRunner
+
 logger = logging.getLogger(__name__)
+
 
 class PollingRunner(BotRunner):
 
@@ -12,5 +13,5 @@ class PollingRunner(BotRunner):
         await self._setup()
         await self._bot.delete_webhook()
 
-        logging.error('Dependencies launched')
+        logger.error('Dependencies launched')
         await self._dp.start_polling(self._bot)

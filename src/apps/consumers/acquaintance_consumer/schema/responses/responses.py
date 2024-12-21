@@ -1,5 +1,6 @@
 import enum
-from typing import  TypedDict
+from typing import TypedDict
+
 from src.apps.consumers.common.user_data import UserData
 
 
@@ -12,19 +13,15 @@ class AcquaintanceResponseStatus(enum.Enum):
 
     def serialize(self) -> int:
         return self.value
-    
+
     @staticmethod
     def deserialize(number: int):
-        if number == 1:
-            return AcquaintanceResponseStatus.NON_REGISTERED
-        elif number == 2:
-            return AcquaintanceResponseStatus.NOT_FOUND
-        elif number == 3:
-            return AcquaintanceResponseStatus.FOUND
-        elif number == 4:
-            return AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED
-        else:
-            return AcquaintanceResponseStatus.UNEXCEPTED_ERROR
+        return {
+            1: AcquaintanceResponseStatus.NON_REGISTERED,
+            2: AcquaintanceResponseStatus.NOT_FOUND,
+            3: AcquaintanceResponseStatus.FOUND,
+            4: AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED,
+        }.get(number, AcquaintanceResponseStatus.UNEXCEPTED_ERROR)
 
 
 class LikedResponseStatus(enum.Enum):
@@ -44,12 +41,24 @@ class LikedResponseStatus(enum.Enum):
         else:
             return LikedResponseStatus.UNEXCEPTED_ERROR
 
+
 class AcquaintanceResponse(TypedDict):
     response: AcquaintanceResponseStatus
     data: UserData | None = None
 
 
-ACQUAINTANCE_UNEXCEPTED_ERROR = AcquaintanceResponse(response=AcquaintanceResponseStatus.UNEXCEPTED_ERROR.serialize())
-ACQUAINTANCE_NON_REGISTERED = AcquaintanceResponse(response=AcquaintanceResponseStatus.NON_REGISTERED.serialize())
-ACQUAINTANCE_NOT_FOUND = AcquaintanceResponse(response=AcquaintanceResponseStatus.NOT_FOUND.serialize())
-PROFILE_MUST_BE_ACTIVATED = AcquaintanceResponse(response=AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED.serialize())
+ACQUAINTANCE_UNEXCEPTED_ERROR = AcquaintanceResponse(
+    response=AcquaintanceResponseStatus.UNEXCEPTED_ERROR.serialize(),
+)
+
+ACQUAINTANCE_NON_REGISTERED = AcquaintanceResponse(
+    response=AcquaintanceResponseStatus.NON_REGISTERED.serialize(),
+)
+
+ACQUAINTANCE_NOT_FOUND = AcquaintanceResponse(
+    response=AcquaintanceResponseStatus.NOT_FOUND.serialize(),
+)
+
+PROFILE_MUST_BE_ACTIVATED = AcquaintanceResponse(
+    response=AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED.serialize()
+)

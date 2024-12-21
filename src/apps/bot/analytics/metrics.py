@@ -20,9 +20,7 @@ BUCKETS = [
 ]
 
 BOT_EXECUTION_LATENCY = Histogram(
-    'bot_methods_execution_time',
-    'Counts the execution time of telegram requests',
-    buckets=BUCKETS
+    'bot_methods_execution_time', 'Counts the execution time of telegram requests', buckets=BUCKETS
 )
 
 TOTAL_BOT_SEND_MESSAGES = Counter(

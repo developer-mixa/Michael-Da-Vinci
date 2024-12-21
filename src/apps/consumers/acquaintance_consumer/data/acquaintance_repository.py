@@ -1,9 +1,12 @@
-from sqlalchemy import select
 from random import choice
+
+from sqlalchemy import select
+
 from src.apps.consumers.common.data.user_repository import UserRepository
+from src.apps.consumers.errors.errors import ProfileMustBeActivatedError
 from src.apps.consumers.model.models import User, UserStatus
-from src.apps.consumers.errors.errors import NonRegisteredError, ProfileMustBeActivatedError
 from src.storage.db import async_session
+
 
 class AcquaintanceRepository(UserRepository):
 
@@ -12,15 +15,16 @@ class AcquaintanceRepository(UserRepository):
 
         if user.status == UserStatus.NO_ACTIVE:
             raise ProfileMustBeActivatedError()
-        
+
         async with async_session() as db:
-            users_scalars = await db.scalars(select(User).where(
-                User.telegram_id != sender_user_tg_id,
-                User.status == UserStatus.ACTIVE,
-                User.gender != user.gender
+            users_scalars = await db.scalars(
+                select(User).where(
+                    User.telegram_id != sender_user_tg_id,
+                    User.status == UserStatus.ACTIVE,
+                    User.gender != user.gender,
                 )
             )
 
             users = users_scalars.all()
-            
+
             return choice(users) if len(users) > 0 else None

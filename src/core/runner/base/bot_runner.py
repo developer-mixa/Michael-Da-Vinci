@@ -1,20 +1,19 @@
 from abc import ABC, abstractmethod
 
-from aiogram import Dispatcher
-
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from src.apps.bot.bot import setup_dp, setup_bot
-from aiogram import Bot, Dispatcher
 from config.settings import settings
-from src.apps.bot.handlers.registration.router import router as registration_router
-from src.apps.bot.handlers.user_state.router import router as user_state_router
+from src.apps.bot.bot import setup_bot, setup_dp
 from src.apps.bot.handlers.acquaintance.router import router as acquaintance_router
 from src.apps.bot.handlers.flood.router import router as flood_router
-from src.apps.bot.middlewares.calculation_analytics import CalculationAnalyticsMiddleware
-from src.apps.bot.middlewares.rps import CalculationRpsMiddleware
-from src.apps.bot.middlewares.execution_time_middleware import CalculationExecutionTimeMiddleware
+from src.apps.bot.handlers.registration.router import router as registration_router
+from src.apps.bot.handlers.user_state.router import router as user_state_router
 from src.apps.bot.menu.commands_menu import bot_commands
+from src.apps.bot.middlewares.calculation_analytics import CalculationAnalyticsMiddleware
+from src.apps.bot.middlewares.execution_time_middleware import CalculationExecutionTimeMiddleware
+from src.apps.bot.middlewares.rps import CalculationRpsMiddleware
+
 
 class BotRunner(ABC):
 

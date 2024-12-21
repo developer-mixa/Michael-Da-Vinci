@@ -23,22 +23,21 @@ PROCESSING_MESSAGE_BUCKETS = [
 DECLARE_QUEUE_LATENCY = Histogram(
     'declare_queue_execution_time',
     'Counts the execution time of declaring queue',
-    buckets=DECLARE_QUEUE_BUCKETS
+    buckets=DECLARE_QUEUE_BUCKETS,
 )
 
 PRODUCE_MESSAGE_LATENCY = Histogram(
     'produce_message_execution_time',
     'Counts the execution time of producing messages',
-    buckets=PROCESSING_MESSAGE_BUCKETS
+    buckets=PROCESSING_MESSAGE_BUCKETS,
 )
 
 PROCESSING_MESSAGE_LATENCY = Histogram(
     'processing_message_execution_time',
     'Counts the execution time of processing messages',
-    buckets=PROCESSING_MESSAGE_BUCKETS
+    buckets=PROCESSING_MESSAGE_BUCKETS,
 )
 
 TOTAL_CONSUMER_RECEIVE_MESSAGES = Counter(
-    'consumers_received_messages', 
-    'Counts how many messages consumers have received'
+    'consumers_received_messages', 'Counts how many messages consumers have received'
 )

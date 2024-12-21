@@ -1,7 +1,9 @@
 from sqlalchemy import select
+
+from src.apps.consumers.errors.errors import NonRegisteredError
 from src.apps.consumers.model.models import User
 from src.storage.db import async_session
-from src.apps.consumers.errors.errors import NonRegisteredError
+
 
 class UserRepository:
 
