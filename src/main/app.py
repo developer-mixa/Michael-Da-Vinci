@@ -13,6 +13,7 @@ from src.core.runner.webhook_runner import WebhookRunner
 from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from src.apps.api.analytics.router import router as analytics_router
+from src.apps.bot.webhook.router import router as webhook_router
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -46,6 +47,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_app() -> FastAPI:
     app = FastAPI(docs_url='/swagger', lifespan=lifespan)
     app.include_router(analytics_router)
+    app.include_router(webhook_router)
     app.add_middleware(RawContextMiddleware, plugins=[plugins.CorrelationIdPlugin()])
     return app
 
