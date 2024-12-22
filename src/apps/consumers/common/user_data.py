@@ -12,7 +12,7 @@ class UserData(TypedDict):
     user_id: int
 
     @staticmethod
-    def from_db_user(user: User, user_image: bytes) -> dict:
+    def from_db_user(user: User, user_image: bytes) -> 'UserData':
         return {
             'name': user.name,
             'age': str(user.dateOfBirth),

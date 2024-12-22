@@ -24,7 +24,6 @@ from src.apps.consumers.acquaintance_consumer.schema.responses.responses import 
     AcquaintanceResponseStatus,
     LikedResponseStatus,
 )
-from src.apps.consumers.common.user_data import UserData
 
 from .router import router
 
@@ -34,14 +33,14 @@ logger = logging.getLogger(__name__)
 
 
 @router.message(F.text == FIND_LOVE)
-async def start_find(message: Message, state: FSMContext):
+async def start_find(message: Message, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(Acquaintance.finding)
     await send_acquaintance_answer(message, state)
 
 
 @router.message(Acquaintance.finding)
-async def finding(message: Message, state: FSMContext):
+async def finding(message: Message, state: FSMContext) -> None:
 
     message_text = message.text
 
@@ -69,7 +68,7 @@ async def finding(message: Message, state: FSMContext):
         await message.answer(msg.ACQUAINTANCE_REQUIREMENTS)
 
 
-async def send_acquaintance_answer(message: Message, state: FSMContext):
+async def send_acquaintance_answer(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     search_data = SearchAcquaintanceData(user_id=user_id, action=SEARCH_ACTION)
     async with acquaintance_producer as producer:
@@ -79,10 +78,10 @@ async def send_acquaintance_answer(message: Message, state: FSMContext):
         )
 
 
-async def __push_search_answer(response: AcquaintanceResponse, message: Message, state: FSMContext):
+async def __push_search_answer(response: AcquaintanceResponse, message: Message, state: FSMContext) -> None:
     search_response = AcquaintanceResponseStatus.deserialize(response['response'])
     if search_response == AcquaintanceResponseStatus.FOUND:
-        found_user_data: UserData = response['data']
+        found_user_data = response['data']
         image_input_file = BufferedInputFile(found_user_data['image'], found_user_data['name'])
         await message.answer_photo(
             photo=image_input_file,
@@ -102,7 +101,7 @@ async def __push_search_answer(response: AcquaintanceResponse, message: Message,
         await message.answer(msg.SOMETHING_WENT_WRONG)
 
 
-async def __push_liked_answer(response: AcquaintanceResponse, message: Message, state: FSMContext):
+async def __push_liked_answer(response: AcquaintanceResponse, message: Message, state: FSMContext) -> None:
     liked_response = LikedResponseStatus.deserialize(response['response'])
     if liked_response == LikedResponseStatus.MUTUALLY:
         bot = get_bot()

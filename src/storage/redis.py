@@ -5,7 +5,7 @@ from config.settings import settings
 redis: Redis
 
 
-def setup_redis() -> Redis:
+def setup_redis() -> None:
     global redis
 
     pool = ConnectionPool(host=settings.REDIS_HOST, port=settings.REDIS_PORT)

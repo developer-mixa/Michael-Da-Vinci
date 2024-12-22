@@ -9,8 +9,8 @@ from src.apps.bot.analytics.metrics import TOTAL_BOT_RPS
 
 class CalculationRpsMiddleware(BaseMiddleware):
 
-    def __init__(self):
-        self.rps = 0
+    def __init__(self) -> None:
+        self.rps = 0.0
         self.last_update_time = time.monotonic()
 
     async def __call__(
@@ -18,7 +18,7 @@ class CalculationRpsMiddleware(BaseMiddleware):
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
         data: Dict[str, Any],
-    ):
+    ) -> Awaitable[Any]:
         current_time = time.monotonic()
 
         delta_time = current_time - self.last_update_time

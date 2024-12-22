@@ -9,14 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 class ConsumerRunner:
-    def __init__(self, consumer: BaseConsumer, queue_name: str):
+    def __init__(self, consumer: BaseConsumer, queue_name: str) -> None:
         self.__consumer = consumer
         self.__queue_name = queue_name
 
-    def run(self):
+    def run(self) -> None:
         asyncio.run(self._run())
 
-    async def _run(self):
+    async def _run(self) -> None:
         logger.info('Starting consumer...')
         async with self.__consumer as rabbit:
             await rabbit.consume_messages(queue_name=self.__queue_name)

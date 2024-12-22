@@ -14,7 +14,7 @@ class CalculationExecutionTimeMiddleware(BaseMiddleware):
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
         data: Dict[str, Any],
-    ):
+    ) -> Any:
 
         start = time.monotonic()
 

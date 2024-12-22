@@ -23,16 +23,16 @@ class S3StorageClient(BaseStorageClient):
             secure=False,
         )
 
-    def upload_file(self, object_name: str, file: io.BytesIO):
+    def upload_file(self, object_name: str, file: io.BytesIO) -> None:
         self._create_busket()
         self._put_file(object_name, file)
 
-    def get_file(self, object_name: str) -> bytes:
+    def get_file(self, object_name: str) -> bytes | None:
         if not self.client.bucket_exists(self.bucket_name):
             return None
         return self._get_file(object_name)
 
-    def _create_busket(self):
+    def _create_busket(self) -> None:
         found = self.client.bucket_exists(self.bucket_name)
         if not found:
             self.client.make_bucket(self.bucket_name)
@@ -40,7 +40,7 @@ class S3StorageClient(BaseStorageClient):
         else:
             logger.info('This busket is already exists - %s', self.bucket_name)
 
-    def _put_file(self, object_name: str, file: io.BytesIO):
+    def _put_file(self, object_name: str, file: io.BytesIO) -> None:
         self.client.put_object(self.bucket_name, object_name, file, file.getbuffer().nbytes)
         logger.info('File : %s was uploaded', object_name)
 

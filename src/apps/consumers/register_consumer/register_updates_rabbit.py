@@ -23,7 +23,7 @@ class RegisterUpdatesRabbit(BaseConsumer):
     __exchange_name__ = settings.REGISTRATION_EXCHANGE_NAME
 
     @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
-    async def processing_message(self, message: Message):
+    async def processing_message(self, message: Message) -> None:
 
         parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
         logger.info('Received message %s', parsed_reg_data)

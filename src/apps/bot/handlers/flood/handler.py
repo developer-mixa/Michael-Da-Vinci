@@ -6,5 +6,5 @@ from .router import router
 
 
 @router.message()
-async def handle_flood(message: Message):
+async def handle_flood(message: Message) -> None:
     await message.answer(NO_COMMAND_FOUND)

@@ -10,7 +10,7 @@ from src.storage.db import async_session
 
 class AcquaintanceRepository(UserRepository):
 
-    async def get_random_acquaintance(self, sender_user_tg_id) -> User | None:
+    async def get_random_acquaintance(self, sender_user_tg_id: int) -> User | None:
         user: User = await self.get_user_by_telegram_id(sender_user_tg_id)
 
         if user.status == UserStatus.NO_ACTIVE:

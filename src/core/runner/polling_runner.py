@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class PollingRunner(BotRunner):
 
-    async def run(self):
+    async def run(self) -> None:
         logger.info('Starting polling')
 
         await self._setup()

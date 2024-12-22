@@ -12,7 +12,7 @@ class CalculationAnalyticsMiddleware(BaseMiddleware):
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
         data: Dict[str, Any],
-    ):
+    ) -> Any:
         result = await handler(event, data)
         TOTAL_BOT_SEND_MESSAGES.inc()
         return result
