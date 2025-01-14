@@ -10,6 +10,7 @@
 - Telethon (для работы с Telegram Bot API)
 - RabbitMQ (для обработки сообщений)
 - PostgreSQL (для хранения данных)
+- Поддерживается WebHook при указании BOT_WEBHOOK_URL
 
 ## Установка
 
@@ -31,7 +32,26 @@ docker-compose up --build
 
 Перед запуском убедитесь, что у вас есть файл `.env` в корневой директории проекта. Он должен содержать следующие переменные окружения:
 
-TELEGRAM_BOT_TOKEN=your_bot_token_here POSTGRES_USER=your_postgres_user POSTGRES_PASSWORD=your_postgres_password POSTGRES_DB=dating_db RABBITMQ_DEFAULT_USER=guest RABBITMQ_DEFAULT_PASS=guest
+BOT_TOKEN=your_token
+BOT_WEBHOOK_URL=
+
+PG_DBNAME=db_name
+PG_USER=db_user
+PG_PASSWORD=db_password
+PG_HOST=postgres
+PG_PORT=5432
+
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+SERVER_PORT=8000
+USER_STATE_CONSUMER_PORT=8001
+REGISTRATION_CONSUMER_PORT=8002
+ACQUINTANCE_CONSUMER_PORT=8003
+
+MINIO_USER=user
+MINIO_PASSWORD=user_password
+MINIO_HOST=minio-app
 
 
 ## Функции
@@ -40,9 +60,7 @@ TELEGRAM_BOT_TOKEN=your_bot_token_here POSTGRES_USER=your_postgres_user POSTGRES
 - Аналитика активности пользователей
 - Сквозное логирование
 - Интеграция с RabbitMQ для обработки сообщений
-
-## Как работает
-
+- Webhook
 1. Бот получает входящие сообщения от пользователей через Telegram Bot API.
 2. Эти сообщения отправляются в очередь RabbitMQ для обработки.
 3. Консьюмеры в RabbitMQ обрабатывают сообщения и сохраняют информацию в базу данных.
