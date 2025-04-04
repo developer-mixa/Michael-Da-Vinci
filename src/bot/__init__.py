@@ -1,1 +1,1 @@
-from . import handlers
+from src.bot import handlers
