@@ -16,10 +16,10 @@ services:
     image: postgres
     restart: always
     env_file:
-      - config/.env
+      - .env
     command: [ "postgres", "-c", "log_statement=all", "-c", "log_destination=stderr" ]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER}"]
+      test: [ "CMD", "pg_isready", "-h", "${PG_HOST}" ,"-U", "${PG_USER}", "-d", "${PG_DBNAME}" ]
       interval: 1s
       retries: 20
     environment:
