@@ -3,7 +3,8 @@ version: '3.8'
 services:
   web:
     build: .
-    command: python3 ./src/apps/users/commands/migrate.py && python3 ./src/app.py
+    command: > 
+      sh -c "python3 ./src/apps/users/commands/migrate.py && python3 ./src/app.py"
     volumes:
       - "./:/code"
     depends_on:
