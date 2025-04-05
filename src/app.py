@@ -3,10 +3,9 @@ import uvicorn
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from src.bot.handlers.message.router import router as test_router
-from src.server.router import router as api_router
+from src.apps.bot.handlers.message.router import router as test_router
 from config.settings import settings
-from src.bot.bot import setup_bot, setup_dp
+from src.apps.bot.bot import setup_bot, setup_dp
 from src.tasks import background_tasks
 from fastapi import FastAPI
 from starlette_context.middleware import RawContextMiddleware
@@ -38,7 +37,6 @@ async def lifespan(app: FastAPI) -> None: # type: ignore
 
 def create_app() -> FastAPI:
     app = FastAPI(docs_url='/swagger', lifespan=lifespan)
-    app.include_router(api_router, prefix='/v1', tags=['v1'])
 
     app.add_middleware(RawContextMiddleware, plugins=[plugins.CorrelationIdPlugin()])
     return app
