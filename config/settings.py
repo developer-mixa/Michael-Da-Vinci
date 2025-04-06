@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     PG_HOST: str
     PG_PORT: int
 
+    SERVER_PORT: int
+
     USER_GIFT_QUEUE_TEMPLATE: str = 'user_gifts.{user_id}'
 
     @property
