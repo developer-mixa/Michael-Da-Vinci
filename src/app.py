@@ -3,7 +3,7 @@ import uvicorn
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from src.apps.bot.handlers.registration.handler import router as registration_router
+from src.apps.bot.handlers.registration.router import router as registration_router
 from src.apps.users.router import router as users_router
 from config.settings import settings
 from src.apps.bot.bot import setup_bot, setup_dp
