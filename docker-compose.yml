@@ -4,7 +4,7 @@ services:
   web:
     build: .
     command: > 
-      sh -c "python3 ./src/apps/users/commands/migrate.py && ./commands/run_server.sh"
+      sh -c "python3 ./src/apps/consumer/commands/migrate.py && python3 ./src/app.py"
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:

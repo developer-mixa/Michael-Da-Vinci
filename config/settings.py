@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     SERVER_PORT: int
 
-    USER_GIFT_QUEUE_TEMPLATE: str = 'user_gifts.{user_id}'
+    USER_REGISTRATION_QUEUE_TEMPLATE: str = 'user_registration.{user_id}'
 
     @property
     def db_url(self) -> str:

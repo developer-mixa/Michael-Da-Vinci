@@ -9,6 +9,12 @@ from src.apps.bot.validators.validators import NameValidator, AgeValidator
 from src.apps.bot.validators import errors as validation
 from src.apps.bot.messages import register as msg
 from src.apps.bot.keyboards.texts import OK as MARKUP_OK, BOY, GIRL
+import aio_pika
+import msgpack
+from aio_pika import ExchangeType
+from src.storage.rabbit import channel_pool
+from src.apps.consumer.actions import REGISTER_USER
+from config.settings import settings
 
 @router.message(F.text == "/registration")
 async def start_registration(message: Message, state: FSMContext):
@@ -88,7 +94,30 @@ async def fill_location(message: Message, state: FSMContext):
 async def fill_image(message: Message, state: FSMContext):
     if message.photo:
         await state.update_data(image=message.photo[-1].file_id)
-        await state.clear()
+        data = await state.get_data()
+
         await message.answer(msg.REGISTER_IS_OVER)
+        await state.clear()
+        async with channel_pool.acquire() as channel:  # type: aio_pika.Channel
+            exchange = await channel.declare_exchange(REGISTER_USER, ExchangeType.TOPIC, durable=True)
+            queue = await channel.declare_queue(
+                settings.USER_REGISTRATION_QUEUE_TEMPLATE.format(
+                    user_id=message.from_user.id,
+            ), durable=True
+            )
+            await queue.bind(
+                exchange,
+                settings.USER_REGISTRATION_QUEUE_TEMPLATE.format(
+                user_id=message.from_user.id,
+            ),
+        )
+            await exchange.publish(
+            aio_pika.Message(
+                msgpack.packb(
+                    GiftMessage(
+                        user_id=message.from_user.id,
+                        action='get_gifts',
+                        event='gift'
+                    ))), 'user_messages')
     else:
         await message.answer(msg.MUST_SEND_PHOTO)
