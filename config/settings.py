@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     SERVER_PORT: int
 
     USER_REGISTRATION_QUEUE_TEMPLATE: str = 'user_registration.{user_id}'
+    REGISTRATION_EXCHANGE_NAME = 'registration_exchange'
 
     @property
     def db_url(self) -> str:
