@@ -7,11 +7,12 @@ from src.apps.consumer.handlers.registration import handle_event_registration
 from src.apps.consumer.logger import LOGGING_CONFIG, logger, correlation_id_ctx
 from src.apps.consumer.schema.registration import RegistrationData
 from src.storage.rabbit import channel_pool
-from .actions import REGISTER_USER
+from src.apps.consumer.actions import REGISTER_USER
 
+import asyncio
 
 async def main() -> None:
-    logging.config.dictConfig(LOGGING_CONFIG)
+    #logging.config.dictConfig(LOGGING_CONFIG)
     logger.info('Starting consumer...')
 
     queue_name = "user_messages"
@@ -30,3 +31,6 @@ async def main() -> None:
                     body: RegistrationData = msgpack.unpackb(message.body)
                     if body['event'] == REGISTER_USER:
                         await handle_event_registration(body)
+
+if __name__ == "__main__":
+    asyncio.run(main())

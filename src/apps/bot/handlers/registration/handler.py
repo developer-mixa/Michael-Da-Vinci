@@ -15,6 +15,7 @@ from aio_pika import ExchangeType
 from src.storage.rabbit import channel_pool
 from src.apps.consumer.actions import REGISTER_USER
 from config.settings import settings
+from src.apps.consumer.schema.registration import RegistrationData
 
 @router.message(F.text == "/registration")
 async def start_registration(message: Message, state: FSMContext):
@@ -114,10 +115,10 @@ async def fill_image(message: Message, state: FSMContext):
             await exchange.publish(
             aio_pika.Message(
                 msgpack.packb(
-                    GiftMessage(
+                    RegistrationData(
                         user_id=message.from_user.id,
-                        action='get_gifts',
-                        event='gift'
+                        event='gift',
+                        **data
                     ))), 'user_messages')
     else:
         await message.answer(msg.MUST_SEND_PHOTO)
