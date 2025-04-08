@@ -2,7 +2,7 @@ version: 1
 disable_existing_loggers: no
 formatters:
   console_formatter_consumer:
-    (): consumer.logger.ConsoleFormatter
+    (): register_consumer.logger.ConsoleFormatter
   console_formatter_backend:
     (): src.logger.ConsoleFormatter
 handlers:

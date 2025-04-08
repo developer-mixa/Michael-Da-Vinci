@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     BOT_WEBHOOK_URL: str
 
-    RABBIT_HOST: str = 'localhost' # rabbitmq
+    RABBIT_HOST: str = 'rabbitmq'
     RABBIT_PORT: int = 5672
     RABBIT_USER: str = 'guest'
     RABBIT_PASSWORD: str = 'guest'
@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     SERVER_PORT: int
 
     USER_REGISTRATION_QUEUE_TEMPLATE: str = 'user_registration.{user_id}'
-    REGISTRATION_EXCHANGE_NAME = 'registration_exchange'
+    REGISTRATION_EXCHANGE_NAME: str = 'registration_exchange'
+    REGISTRATION_QUEUE_NAME: str = 'registration_queue'
 
     @property
     def db_url(self) -> str:
