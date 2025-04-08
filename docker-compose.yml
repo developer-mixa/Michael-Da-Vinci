@@ -4,7 +4,7 @@ services:
   web:
     build: .
     command: > 
-      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/main/app.py"
+      sh -c "python3 ./src/main/app.py"
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
@@ -12,6 +12,24 @@ services:
     depends_on:
       rabbitmq:
           condition: service_healthy
+      postgres:
+        condition: service_started
+      consumer:
+        condition: service_started
+    networks:
+      - acquaintance_internet
+      - acquaintance_pg_net
+      - rabbit_internet
+  consumer:
+    build: .
+    restart: always
+    command: >
+      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/register_consumer/app.py"
+    volumes:
+      - "./:/code"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
       postgres:
         condition: service_started
     networks:
