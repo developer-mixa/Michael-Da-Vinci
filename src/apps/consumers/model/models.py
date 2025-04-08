@@ -23,3 +23,4 @@ class User(Base, UUIDMixin):
     dateOfBirth: Mapped[date]
     telegram_id = mapped_column(BigInteger)
     status = mapped_column(Enum(UserStatus))
+
