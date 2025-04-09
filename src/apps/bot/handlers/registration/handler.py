@@ -1,7 +1,12 @@
+import asyncio
+
+import msgpack
+from aio_pika.exceptions import QueueEmpty
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import F
 
+from config.settings import settings
 from src.apps.consumers.register_consumer.schema.registration import RegistrationData
 from ..states.registration import Registration
 from .router import router
@@ -93,13 +98,19 @@ async def fill_image(message: Message, state: FSMContext):
     if message.photo:
         await state.update_data(image=message.photo[-1].file_id)
         data = await state.get_data()
-        await message.answer(msg.REGISTER_IS_OVER)
+        await message.answer(msg.PUSH_REGISTER_QUERY)
         await state.clear()
 
-        reg_data = RegistrationData(user_id=message.from_user.id, **data)
+        user_id = message.from_user.id
+
+        reg_data = RegistrationData(user_id=user_id, **data)
 
         async with registration_producer as producer:
             await producer.produce_message(reg_data)
-
+            await producer.wait_register_answer(user_id, lambda is_success_reg: __push_register_answer(is_success_reg, message))
     else:
         await message.answer(msg.MUST_SEND_PHOTO)
+
+async def __push_register_answer(is_success_reg: bool, message: Message):
+    answer = msg.SUCCESS_REGISTER if is_success_reg else msg.ALREADY_REGISTER
+    await message.answer(answer)
