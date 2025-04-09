@@ -31,4 +31,3 @@ class PollingRunner(BotRunner):
 
         logging.error('Dependencies launched')
         await self.__dp.start_polling(self.__bot)
-

@@ -1,3 +1,5 @@
+from aio_pika import Message
+
 from src.apps.consumers.register_consumer.register_updates_rabbit import RegisterUpdatesRabbit
 
 from config.settings import settings
@@ -12,6 +14,7 @@ from src.apps.consumers.register_consumer.schema.registration import Registratio
 logger = logging.getLogger(__name__)
 
 class RegistrationProducer(RegisterUpdatesRabbit):
+
     async def produce_message(self, registration_data: RegistrationData):
         logger.info("Producing message %s", registration_data)
 

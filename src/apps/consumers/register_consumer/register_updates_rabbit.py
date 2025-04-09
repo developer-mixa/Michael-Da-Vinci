@@ -1,52 +1,26 @@
 import logging
 import msgpack
-import aio_pika
-from aio_pika.abc import AbstractQueue
-from src.apps.consumers.base.rabbit_base import RabbitBase
+from aio_pika import Message
+from src.apps.consumers.base.base_consumer import BaseConsumer
 from config.settings import settings
 from .schema.registration import RegistrationData
 from src.storage.db import async_session
 from ..mappers.user_mapper import user_from_reg_data
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
-class RegisterUpdatesRabbit(RabbitBase):
+class RegisterUpdatesRabbit(BaseConsumer):
 
-    async def declare_register_updates_exchange(self) -> None:
-        channel = await self.channel()
-        await channel.declare_exchange(name=settings.REGISTRATION_EXCHANGE_NAME, durable=True)
+    __exchange_name__ = settings.REGISTRATION_EXCHANGE_NAME
 
-    async def declare_register_updates_queue(
-        self,
-        queue_name: str = "",
-        routing_key: str = None,
-        exclusive: bool = False
-    ) -> AbstractQueue:
-        await self.declare_register_updates_exchange()
-
-        channel = await self.channel()
-        queue = await channel.declare_queue(queue_name, exclusive=exclusive)
-        exchange = await channel.get_exchange(settings.REGISTRATION_EXCHANGE_NAME)
-
-        await queue.bind(exchange=exchange, routing_key=routing_key)
-
-        return queue
-
-    async def consume_messages(
-            self,
-            queue_name: str = "",
-            prefetch_count: int = 1) -> None:
-        channel = await self.channel()
-        await channel.set_qos(prefetch_count=prefetch_count)
-
-        queue = await self.declare_register_updates_queue(queue_name=queue_name, exclusive=not queue_name)
-        async with queue.iterator() as queue_iter:
-            async for message in queue_iter: # type: aio_pika.Message
-                async with message.process():
-                    logger.info("Consume message...")
-                    parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
-                    logger.info("Got message %s", parsed_reg_data)
-                    user = user_from_reg_data(parsed_reg_data)
-                    async with async_session() as db:
-                        db.add(user)
-                        await db.commit()
+    async def processing_message(self, message: Message):
+        parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)
+        logger.info("Got message %s", parsed_reg_data)
+        user = user_from_reg_data(parsed_reg_data)
+        try:
+            async with async_session() as db:
+                db.add(user)
+                await db.commit()
+        except IntegrityError:
+            logger.info("This user with this data is already registered: %s", parsed_reg_data)
