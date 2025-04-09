@@ -1,7 +1,6 @@
 from . import errors as e
 from .base.base_validator import BaseTgValidator
-from datetime import datetime
-from .utils import AGE_FORMAT
+from src.core.utils.date import str_to_date
 
 MAX_NAME_LEN = 15
 MIN_NAME_LEN = 2
@@ -25,6 +24,6 @@ class NameValidator(BaseTgValidator):
 class AgeValidator(BaseTgValidator):
     def _do_validate(self, message: str):
         try:
-            datetime.strptime(message, AGE_FORMAT).date()
+            str_to_date(message)
         except Exception:
             raise e.WrongAgeFormatError

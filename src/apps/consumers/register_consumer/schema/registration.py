@@ -8,4 +8,4 @@ class RegistrationData(TypedDict):
     description: str
     location: str
     image: str
-    user_id: str
+    user_id: int
