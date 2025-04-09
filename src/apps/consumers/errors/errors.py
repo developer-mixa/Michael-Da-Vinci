@@ -1,0 +1,2 @@
+class NonRegisteredError(Exception):
+    pass
