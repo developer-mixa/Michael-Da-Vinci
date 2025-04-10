@@ -85,6 +85,14 @@ class BaseConsumer(RabbitBase, ABC):
             except QueueEmpty:
                 await asyncio.sleep(1)
 
+
+    async def publish_message_to_user(self, message, queue_name: str):
+        await self.declare_exchange()
+        channel = await self.channel()
+        exchange = await channel.get_exchange(self.__exchange_name__)
+        message = aio_pika.Message(msgpack.packb(message))
+        await exchange.publish(message, queue_name)
+
     @abstractmethod
     async def processing_message(self, message: Message):
         pass

@@ -36,12 +36,6 @@ class UpdateStateRabbit(BaseConsumer):
                     if value and param != 'user_id':
                         setattr(user, param, value)
                 await db.commit()
-                await self.__publish_message_to_user(exchange, True, queue_name)
+                await self.publish_message_to_user(True, queue_name)
         except NonRegisteredError:
-            await self.__publish_message_to_user(exchange, False, queue_name)
-            pass
-
-    @staticmethod
-    async def __publish_message_to_user(exchange: AbstractExchange, is_success_register: bool, queue_name: str):
-        message = aio_pika.Message(msgpack.packb(is_success_register))
-        await exchange.publish(message, queue_name)
+            await self.publish_message_to_user(False, queue_name)
