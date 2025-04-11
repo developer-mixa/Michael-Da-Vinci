@@ -9,7 +9,7 @@ from aiogram import F
 
 from src.apps.bot.messages import update_state as msg
 
-from src.apps.bot.commands.commands import ACTIVATING, DEACTIVATING, UPDATE_STATE, CALLBACK_UPDATE, CALLBACK_BACK_MENU
+from src.apps.bot.commands.commands import ACTIVATING, DEACTIVATING, UPDATE_STATE, CALLBACK_UPDATE_PREFIX, CALLBACK_BACK_MENU
 
 from config.settings import settings
 
@@ -36,7 +36,7 @@ async def deactivate_profile(message: Message):
 async def update_profile(message: Message):
     await message.answer(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
 
-@router.callback_query(F.data == CALLBACK_UPDATE)
+@router.callback_query(F.data.startswith(CALLBACK_UPDATE_PREFIX))
 async def update_callback(callback: CallbackQuery, state: FSMContext):
     await callback.answer("")
     await callback.message.edit_text('Меняйте имя', reply_markup=BACK_TO_MENU)
@@ -53,6 +53,9 @@ async def back_to_menu_callback(callback: CallbackQuery, state: FSMContext):
     await callback.answer("")
     await state.clear()
     await callback.message.edit_text(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
+
+def __get_callback_field(callback_data: str):
+    return callback_data.split('_', 2)[-1]
 
 async def __set_active_profile(message: Message, is_active: bool):
     logger.info("Start setting active profile to %s", is_active)

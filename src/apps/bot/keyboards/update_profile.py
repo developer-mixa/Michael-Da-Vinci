@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from src.apps.bot.commands.commands import CALLBACK_UPDATE, CALLBACK_BACK_MENU
+from src.apps.bot.commands.commands import CALLBACK_UPDATE_PREFIX, CALLBACK_BACK_MENU
 
 form_fields = [
     ['Имя', 'name'],
@@ -15,5 +15,5 @@ BACK_TO_MENU = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=
 async def inline_user_state_fields() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
     for field in form_fields:
-        keyboard.add(InlineKeyboardButton(text=field[0], callback_data=CALLBACK_UPDATE))
+        keyboard.add(InlineKeyboardButton(text=field[0], callback_data=CALLBACK_UPDATE_PREFIX + field[1]))
     return keyboard.adjust(2).as_markup()
