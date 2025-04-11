@@ -1,6 +1,6 @@
 import logging
 
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
 from src.apps.consumers.user_state_consumer.schema.update_user_state import UpdateUserData
 from .router import router
@@ -8,9 +8,11 @@ from aiogram import F
 
 from src.apps.bot.messages import update_state as msg
 
-from src.apps.bot.commands.commands import ACTIVATING, DEACTIVATING
+from src.apps.bot.commands.commands import ACTIVATING, DEACTIVATING, UPDATE_STATE, CALLBACK_UPDATE, CALLBACK_BACK_MENU
 
 from config.settings import settings
+
+from src.apps.bot.keyboards.update_profile import inline_user_state_fields, BACK_TO_MENU
 
 from ...producers.user_state_producer import UserStateProducer
 
@@ -25,6 +27,20 @@ async def activate_profile(message: Message):
 @router.message(F.text == DEACTIVATING)
 async def deactivate_profile(message: Message):
     await __set_active_profile(message, False)
+
+@router.message(F.text == UPDATE_STATE)
+async def update_profile(message: Message):
+    await message.answer(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
+
+@router.callback_query(F.data == CALLBACK_UPDATE)
+async def update_callback(callback: CallbackQuery):
+    await callback.answer("")
+    await callback.message.edit_text('Меняйте имя', reply_markup=BACK_TO_MENU)
+
+@router.callback_query(F.data == CALLBACK_BACK_MENU)
+async def back_to_menu_callback(callback: CallbackQuery):
+    await callback.answer("")
+    await callback.message.edit_text(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
 
 async def __set_active_profile(message: Message, is_active: bool):
     logger.info("Start setting active profile to %s", is_active)

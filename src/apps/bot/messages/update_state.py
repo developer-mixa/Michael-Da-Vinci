@@ -3,3 +3,4 @@ DEACTIVATION_REQUEST_SENT = 'Заявка с деактивацией профи
 PROFILE_HAS_BEEN_ACTIVATED = 'Профиль активирован!'
 PROFILE_HAS_BEEN_DEACTIVATED = 'Профиль деактивирован!'
 SOMETHING_WENT_WRONG = 'Что-то пошло не так. Проверьте, зарегистрированы ли вы'
+WHAT_TO_UPDATE = 'Что вы хотите изменить в профиле?'
