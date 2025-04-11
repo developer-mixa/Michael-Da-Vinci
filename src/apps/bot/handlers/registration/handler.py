@@ -13,13 +13,14 @@ from src.apps.bot.validators import errors as validation
 from src.apps.bot.messages import register as msg
 from src.apps.bot.keyboards.texts import OK as MARKUP_OK, BOY, GIRL
 from ...producers.registration_producer import RegistrationProducer
+from src.apps.bot.commands.commands import REGISTRATION
 import logging
 
 logger = logging.getLogger(__name__)
 
 registration_producer = RegistrationProducer()
 
-@router.message(F.text == "/registration")
+@router.message(F.text == REGISTRATION)
 async def start_registration(message: Message, state: FSMContext):
     await state.set_state(Registration.accept_privacy_policy)
     await message.answer(msg.ACCEPT_PRIVACY_POLICE, reply_markup=OK)

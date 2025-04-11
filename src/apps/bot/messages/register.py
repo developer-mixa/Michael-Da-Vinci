@@ -1,3 +1,5 @@
+from src.apps.bot.commands.commands import ACTIVATING
+
 # success messages
 
 ACCEPT_PRIVACY_POLICE = 'Продолжая, вы принимаете пользовательское соглашение и политику конфидициальности.'
@@ -10,7 +12,7 @@ ABOUT_YOU = 'Расскажи о себе'
 WHERE_YOU_FROM = 'Из какого ты города?'
 SEND_YOUR_PHOTO = 'Теперь пришли своё фото, его будут видеть другие пользователи'
 PUSH_REGISTER_QUERY = 'Заявка отправлена в очередь на регистрацию, ожидайте...'
-SUCCESS_REGISTER = 'Вы успешно зарегистрировались! Теперь вы можете активировать профиль командой /activate'
+SUCCESS_REGISTER = f'Вы успешно зарегистрировались! Теперь вы можете показать профиль в ленте командой {ACTIVATING}'
 ALREADY_REGISTER = 'Вы уже зарегистрированы!'
 MUST_SEND_PHOTO = 'Отправьте фото'
 
