@@ -3,7 +3,6 @@ import logging
 import aio_pika
 import msgpack
 from aio_pika import Message
-from aio_pika.abc import AbstractExchange
 from sqlalchemy import select
 
 from config.settings import settings
