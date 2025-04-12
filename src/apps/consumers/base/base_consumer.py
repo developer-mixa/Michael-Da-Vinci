@@ -67,17 +67,19 @@ class BaseConsumer(RabbitBase, ABC):
         logger.warning("Produced message %s", message.body)
 
     async def wait_answer_for_user(self, queue_name, user_id, success_callback: Callable[[bool], Coroutine]):
+        await self.declare_exchange()
         channel = await self.channel()
         await channel.set_qos(prefetch_count=1)
         queue_name = f'{queue_name}.{user_id}'
 
         logger.info("Handler started waiting for answer in queue: %s", queue_name)
 
-        queue = await self.declare_queue(queue_name=queue_name, exclusive=not queue_name)
+        queue = await self.declare_queue(queue_name=queue_name, exclusive=False)
         for _ in range(self.__RETRIES):
+            
             try:
                 logger.info("Try to get value from queue...")
-                is_reg = await queue.get()
+                is_reg = await queue.get(no_ack=True)
                 is_success: bool = msgpack.unpackb(is_reg.body)
                 logger.info("Got value from queue: %s", is_success)
                 await success_callback(is_success)
@@ -92,6 +94,7 @@ class BaseConsumer(RabbitBase, ABC):
         exchange = await channel.get_exchange(self.__exchange_name__)
         message = aio_pika.Message(msgpack.packb(message))
         await exchange.publish(message, queue_name)
+        logger.info("Message published in queue: %s", queue_name)
 
     @abstractmethod
     async def processing_message(self, message: Message):
