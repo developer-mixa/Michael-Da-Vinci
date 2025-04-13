@@ -7,5 +7,5 @@ class RegistrationData(TypedDict):
     gender: str
     description: str
     location: str
-    image: str
+    image: bytes
     user_id: int

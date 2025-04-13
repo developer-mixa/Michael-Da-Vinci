@@ -90,7 +90,7 @@ services:
     networks:
       - rabbit_internet
   minio:
-    hostname: minio-app
+    hostname: ${MINIO_HOST}
     image: quay.io/minio/minio:RELEASE.2024-11-07T00-52-20Z
     command: server /data --console-address ":9001"
     container_name: acquaintance-minio
