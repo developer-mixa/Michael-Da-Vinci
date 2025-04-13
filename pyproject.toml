@@ -26,6 +26,7 @@ hiredis = "^3.0.0"
 aio-pika = "^9.4.3"
 msgpack = "^1.1.0"
 starlette-context = "^0.3.6"
+minio = "^7.2.12"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "1.4"

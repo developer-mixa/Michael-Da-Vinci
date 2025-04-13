@@ -12,6 +12,8 @@ services:
     depends_on:
       rabbitmq:
           condition: service_healthy
+      minio:
+        condition: service_started
       postgres:
         condition: service_started
       register_consumer:
@@ -87,11 +89,30 @@ services:
       retries: 3
     networks:
       - rabbit_internet
+  minio:
+    hostname: minio-app
+    image: quay.io/minio/minio:RELEASE.2024-11-07T00-52-20Z
+    command: server /data --console-address ":9001"
+    container_name: acquaintance-minio
+    volumes:
+    - /minio/data:/minio_data
+    environment:
+      MINIO_ROOT_USER: "${MINIO_USER}"
+      MINIO_ROOT_PASSWORD: "${MINIO_PASSWORD}"
+    healthcheck:
+      test: ["CMD", "curl -k -f http://127.0.0.1:9001/minio/health/live || exit 1"]
+      interval: 3s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - acquaintance_internet
 
 volumes:
   acquaintance_postgresql_data: null
   rabbitmq-data: null
-
 
 networks:
   acquaintance_internet:
