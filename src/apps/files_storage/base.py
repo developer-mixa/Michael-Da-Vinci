@@ -8,5 +8,5 @@ class BaseStorageClient(ABC):
         pass
 
     @abstractmethod
-    def get_file(self):
+    def get_file(self, object_name: str) -> bytes:
         pass
