@@ -100,7 +100,7 @@ class AcquaintanceRabbit(BaseConsumer):
             try:
                 user_message = await liked_user_queue.get()
                 
-                user_id: int = msgpack.unpackb(user_message.body)['data']
+                user_id: int = msgpack.unpackb(user_message.body)
                 logger.info("Comparing %s and %s", user_id, user_sender_id)
                 if user_id == user_sender_id:
                     return True
@@ -110,9 +110,7 @@ class AcquaintanceRabbit(BaseConsumer):
     async def _like_user(self, sender_id: int, liked_user_id: int):
         user_likes_queue: str = f'{settings.LIKES_QUEUE_NAME}.{sender_id}'
         await self.publish_message_to_user(
-            message=AcquaintanceResponse(
-                response=LikedResponseStatus.LIKE_SENT.serialize(),
-                data=liked_user_id
-            ),
+            message=liked_user_id,
             queue_name=user_likes_queue
         )
+        await self.publish_message_to_user(message=AcquaintanceResponse(response=LikedResponseStatus.LIKE_SENT.serialize()), queue_name=f'{settings.ACQUAINTANCE_LIKE_QUEUE_NAME}.{sender_id}')
