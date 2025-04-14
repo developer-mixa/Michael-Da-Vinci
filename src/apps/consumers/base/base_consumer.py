@@ -54,7 +54,7 @@ class BaseConsumer(RabbitBase, ABC):
                     await self.processing_message(message)
 
     async def base_produce_message(self, data: TypedDict, queue: str):
-        logger.info("Producing message %s", data)
+        logger.info("Producing message...")
 
         await self.declare_exchange()
         await self.declare_queue(queue)
@@ -64,12 +64,19 @@ class BaseConsumer(RabbitBase, ABC):
         message = aio_pika.Message(msgpack.packb(data))
 
         await exchange.publish(message, queue)
-        logger.warning("Produced message %s", message.body)
+        logger.warning("Produced message...")
 
-    async def wait_answer_for_user(self, queue_name, user_id, success_callback: Callable[[bool], Coroutine]):
+    async def wait_answer_for_user(
+            self,
+            queue_name: str, 
+            user_id: int, 
+            success_callback: Callable[[bool], Coroutine], 
+            prefetch_count: int = 1, 
+            no_ack: bool = True
+        ):
         await self.declare_exchange()
         channel = await self.channel()
-        await channel.set_qos(prefetch_count=1)
+        await channel.set_qos(prefetch_count=prefetch_count)
         queue_name = f'{queue_name}.{user_id}'
 
         logger.info("Handler started waiting for answer in queue: %s", queue_name)
@@ -79,9 +86,9 @@ class BaseConsumer(RabbitBase, ABC):
             
             try:
                 logger.info("Try to get value from queue...")
-                is_reg = await queue.get(no_ack=True)
+                is_reg = await queue.get(no_ack=no_ack)
                 is_success: bool = msgpack.unpackb(is_reg.body)
-                logger.info("Got value from queue: %s", is_success)
+                logger.info("Got value from queue...")
                 await success_callback(is_success)
                 break
             except QueueEmpty:

@@ -36,7 +36,9 @@ class Settings(BaseSettings):
 
     REGISTRATION_QUEUE_NAME: str = 'registration_queue'
     ACQUAINTANCE_QUEUE_NAME: str = 'acquaintance_queue'
+    ACQUAINTANCE_LIKE_QUEUE_NAME: str = 'acquaintance_like_queue'
     UPDATE_USER_QUEUE_NAME: str = 'update_user_queue'
+    LIKES_QUEUE_NAME: str = 'likes'
 
     @property
     def db_url(self) -> str:

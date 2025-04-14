@@ -8,6 +8,9 @@ class BaseAcquaintanceData(TypedDict):
 class SearchAcquaintanceData(BaseAcquaintanceData):
     pass
 
+class MutualityData(TypedDict):
+    liked_user_id: int
+    sender_user_id: int
 
-class LikeUserData(BaseAcquaintanceData):
+class LikeUserData(BaseAcquaintanceData, MutualityData):
     liked_user_id: int
