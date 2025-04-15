@@ -103,6 +103,7 @@ class AcquaintanceRabbit(BaseConsumer):
                 user_id: int = msgpack.unpackb(user_message.body)
                 logger.info("Comparing %s and %s", user_id, user_sender_id)
                 if user_id == user_sender_id:
+                    await user_message.ack()
                     return True
             except QueueEmpty:
                 return False
