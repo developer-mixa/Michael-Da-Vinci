@@ -2,6 +2,7 @@ import io
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import F
+from aiogram.filters import CommandStart
 
 from config.settings import settings
 from src.apps.bot.bot import get_bot
@@ -21,6 +22,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 registration_producer = RegistrationProducer()
+
+@router.message(CommandStart())
+async def start(message: Message):
+    await message.answer(msg.WELCOME_MESSAGE)
 
 @router.message(F.text == REGISTRATION)
 async def start_registration(message: Message, state: FSMContext):
