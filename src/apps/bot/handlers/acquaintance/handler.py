@@ -87,6 +87,8 @@ async def __push_search_answer(response: AcquaintanceResponse, message: Message,
         await state.set_data({'current_user_id': found_user_data['user_id']})
     elif search_response == AcquaintanceResponseStatus.NON_REGISTERED:
         await message.answer(msg.NOT_REGISTERED)
+    elif search_response == AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED:
+        await message.answer(msg.PROFILE_MUST_BE_ACTIVATED)
     elif search_response == AcquaintanceResponseStatus.NOT_FOUND:
         await message.answer(msg.NO_USERS_FOUND)
     elif search_response == AcquaintanceResponseStatus.UNEXCEPTED_ERROR:

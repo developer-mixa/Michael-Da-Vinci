@@ -13,8 +13,9 @@ from src.apps.consumers.acquaintance_consumer.schema.acquintance_data import (
 )
 from src.apps.consumers.acquaintance_consumer.schema.responses.responses import (
     ACQUAINTANCE_NON_REGISTERED,
-    ACQUAINTANCE_NOT_FOUND,
+    PROFILE_MUST_BE_ACTIVATED,
     ACQUAINTANCE_UNEXCEPTED_ERROR,
+    ACQUAINTANCE_NOT_FOUND,
     AcquaintanceResponse,
     AcquaintanceResponseStatus,
     LikedResponseStatus,
@@ -24,7 +25,7 @@ from src.apps.consumers.common.user_data import UserData
 from src.apps.consumers.model.models import User
 from src.apps.files_storage.storage_client import images_storage
 
-from ..errors.errors import NonRegisteredError
+from ..errors.errors import NonRegisteredError, ProfileMustBeActivatedError
 from .actions import LIKE, SEARCH
 from .data.acquaintance_repository import AcquaintanceRepository
 
@@ -51,14 +52,16 @@ class AcquaintanceRabbit(BaseConsumer):
         search_queue_name: str = f'{settings.ACQUAINTANCE_QUEUE_NAME}.{acquaintance_data["user_id"]}'
         try:
             found_user: User = await self.acquaintance_repository.get_random_acquaintance(acquaintance_data['user_id'])
-            found_user_image = images_storage.get_file(str(found_user.telegram_id))
             if found_user:
+                found_user_image = images_storage.get_file(str(found_user.telegram_id))
                 user_data = UserData.from_db_user(found_user, found_user_image)
                 await self.publish_message_to_user(AcquaintanceResponse(response=AcquaintanceResponseStatus.FOUND.serialize(), data=user_data), search_queue_name)
             else:
                 await self.publish_message_to_user(ACQUAINTANCE_NOT_FOUND, search_queue_name)
         except NonRegisteredError:
             await self.publish_message_to_user(ACQUAINTANCE_NON_REGISTERED, search_queue_name)
+        except ProfileMustBeActivatedError:
+            await self.publish_message_to_user(PROFILE_MUST_BE_ACTIVATED, search_queue_name)
         except BaseException as e:
             logger.error('Unexcepted exception: %s', str(e))
             await self.publish_message_to_user(ACQUAINTANCE_UNEXCEPTED_ERROR, search_queue_name)
