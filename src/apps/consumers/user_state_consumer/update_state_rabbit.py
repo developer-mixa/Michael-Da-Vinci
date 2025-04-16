@@ -32,7 +32,7 @@ class UpdateStateRabbit(BaseConsumer):
                 if not user:
                     raise NonRegisteredError
                 for param, value in parsed_user_data.items():
-                    if value and param != 'user_id':
+                    if value is not None and param != 'user_id':
                         if param == 'status': # In a good way, you need to serialize the enum here, but the deadlines are tight
                             setattr(user, param, UserStatus.ACTIVE if value else UserStatus.NO_ACTIVE)
                         else:
