@@ -16,6 +16,8 @@ services:
         condition: service_started
       postgres:
         condition: service_started
+      prometheus:
+        condition: service_started
       register_consumer:
         condition: service_started
       user_state_consumer:
@@ -125,6 +127,19 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
+    networks:
+      - acquaintance_internet
+
+  prometheus:
+    container_name: acquaintance-prometheus
+    image: prom/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus_config.yml"
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
     networks:
       - acquaintance_internet
 
