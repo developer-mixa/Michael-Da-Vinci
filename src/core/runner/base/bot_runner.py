@@ -11,6 +11,7 @@ from src.apps.bot.handlers.registration.router import router as registration_rou
 from src.apps.bot.handlers.user_state.router import router as user_state_router
 from src.apps.bot.handlers.acquaintance.router import router as acquaintance_router
 from src.apps.bot.handlers.flood.router import router as flood_router
+from src.apps.bot.middlewares.calculation_analytics import CalculationAnalyticsMiddleware
 from src.apps.bot.menu.commands_menu import bot_commands
 
 class BotRunner(ABC):
@@ -23,7 +24,7 @@ class BotRunner(ABC):
         setup_bot(self._bot)
 
     @abstractmethod
-    def run(self):
+    async def run(self):
         pass
 
     async def _setup(self):
@@ -33,3 +34,4 @@ class BotRunner(ABC):
         self._dp.include_router(user_state_router)
         self._dp.include_router(acquaintance_router)
         self._dp.include_router(flood_router)
+        self._dp.update.outer_middleware(CalculationAnalyticsMiddleware())
