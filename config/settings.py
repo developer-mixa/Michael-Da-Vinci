@@ -26,13 +26,15 @@ class Settings(BaseSettings):
     MINIO_HOST: str
 
     SERVER_PORT: int
+    USER_STATE_CONSUMER_PORT: int = 8001
+    REGISTRATION_CONSUMER_PORT: int = 8002
+    ACQUINTANCE_CONSUMER_PORT: int = 8003
 
     USER_REGISTRATION_QUEUE_TEMPLATE: str = 'user_registration.{user_id}'
 
     REGISTRATION_EXCHANGE_NAME: str = 'registration_exchange'
     ACQUAINTANCE_EXCHANGE_NAME: str = 'acquaintance_exchange'
     UPDATE_USER_EXCHANGE_NAME: str = 'update_user_exchange'
-
 
     REGISTRATION_QUEUE_NAME: str = 'registration_queue'
     ACQUAINTANCE_QUEUE_NAME: str = 'acquaintance_queue'

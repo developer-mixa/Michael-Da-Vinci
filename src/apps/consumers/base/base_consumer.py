@@ -8,6 +8,7 @@ from aio_pika import Message
 from aio_pika.abc import AbstractQueue
 from src.apps.consumers.base.rabbit_base import RabbitBase
 from aio_pika.exceptions import QueueEmpty
+#from src.apps.common.analytics.metrics import TOTAL_CONSUMERS_RECEIVE_MESSAGES
 
 from abc import ABC, abstractmethod
 
@@ -50,6 +51,7 @@ class BaseConsumer(RabbitBase, ABC):
         async with queue.iterator() as queue_iter:
             async for message in queue_iter: # type: aio_pika.Message
                 async with message.process():
+                    #TOTAL_CONSUMERS_RECEIVE_MESSAGES.inc()
                     logger.info("Consume message...")
                     await self.processing_message(message)
 
