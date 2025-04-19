@@ -12,6 +12,7 @@ from src.apps.bot.handlers.user_state.router import router as user_state_router
 from src.apps.bot.handlers.acquaintance.router import router as acquaintance_router
 from src.apps.bot.handlers.flood.router import router as flood_router
 from src.apps.bot.middlewares.calculation_analytics import CalculationAnalyticsMiddleware
+from src.apps.bot.middlewares.rps import CalculationRpsMiddleware
 from src.apps.bot.menu.commands_menu import bot_commands
 
 class BotRunner(ABC):
@@ -35,3 +36,4 @@ class BotRunner(ABC):
         self._dp.include_router(acquaintance_router)
         self._dp.include_router(flood_router)
         self._dp.update.outer_middleware(CalculationAnalyticsMiddleware())
+        self._dp.update.outer_middleware(CalculationRpsMiddleware())
