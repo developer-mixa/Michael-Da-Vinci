@@ -12,6 +12,8 @@ from aio_pika.exceptions import QueueEmpty
 
 from abc import ABC, abstractmethod
 
+from src.apps.consumers.common.analytics import TOTAL_CONSUMER_RECEIVE_MESSAGES
+
 logger = logging.getLogger(__name__)
 
 class BaseConsumer(RabbitBase, ABC):
@@ -51,7 +53,7 @@ class BaseConsumer(RabbitBase, ABC):
         async with queue.iterator() as queue_iter:
             async for message in queue_iter: # type: aio_pika.Message
                 async with message.process():
-                    #TOTAL_CONSUMERS_RECEIVE_MESSAGES.inc()
+                    TOTAL_CONSUMER_RECEIVE_MESSAGES.inc()
                     logger.info("Consume message...")
                     await self.processing_message(message)
 
