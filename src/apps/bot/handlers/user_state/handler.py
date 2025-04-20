@@ -26,22 +26,22 @@ user_state_producer = UserStateProducer()
 
 
 @router.message(F.text == ACTIVATING)
-async def activate_profile(message: Message):
+async def activate_profile(message: Message) -> None:
     await __set_active_profile(message, True)
 
 
 @router.message(F.text == DEACTIVATING)
-async def deactivate_profile(message: Message):
+async def deactivate_profile(message: Message) -> None:
     await __set_active_profile(message, False)
 
 
 @router.message(F.text == UPDATE_STATE)
-async def update_profile(message: Message):
+async def update_profile(message: Message) -> None:
     await message.answer(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
 
 
 @router.callback_query(F.data.startswith(CALLBACK_UPDATE_PREFIX))
-async def update_callback(callback: CallbackQuery, state: FSMContext):
+async def update_callback(callback: CallbackQuery, state: FSMContext) -> None:
     callback_field = __get_callback_field(callback.data)
     changed_field = get_button_name_by_key(callback_field)
 
@@ -54,7 +54,7 @@ async def update_callback(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(UpdateProfile.update_field_value)
-async def fill_update_info(message: Message, state: FSMContext):
+async def fill_update_info(message: Message, state: FSMContext) -> None:
     await state.update_data(update_field_value=message.text)
     data = await state.get_data()
     await state.clear()
@@ -78,17 +78,17 @@ async def fill_update_info(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data == CALLBACK_BACK_MENU)
-async def back_to_menu_callback(callback: CallbackQuery, state: FSMContext):
+async def back_to_menu_callback(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer('')
     await state.clear()
     await callback.message.edit_text(msg.WHAT_TO_UPDATE, reply_markup=await inline_user_state_fields())
 
 
-def __get_callback_field(callback_data: str):
-    return callback_data.split('_', 2)[-1]
+def __get_callback_field(callback_data: str | None) -> str:
+    return callback_data.split('_', 2)[-1] if callback_data else ''
 
 
-async def __set_active_profile(message: Message, is_active: bool):
+async def __set_active_profile(message: Message, is_active: bool) -> None:
     logger.info('Start setting active profile to %s', is_active)
 
     await message.answer(msg.ACTIVATION_REQUEST_SENT if is_active else msg.DEACTIVATION_REQUEST_SENT)
@@ -107,12 +107,12 @@ async def __set_active_profile(message: Message, is_active: bool):
         )
 
 
-async def __push_set_active_answer(is_active: bool, is_success: bool, message: Message):
+async def __push_set_active_answer(is_active: bool, is_success: bool, message: Message) -> None:
     success_msg = msg.PROFILE_HAS_BEEN_ACTIVATED if is_active else msg.PROFILE_HAS_BEEN_DEACTIVATED
     answer = success_msg if is_success else msg.SOMETHING_WENT_WRONG
     await message.answer(answer)
 
 
-async def __push_update_profile_answer(is_success: bool, message: Message):
+async def __push_update_profile_answer(is_success: bool, message: Message) -> None:
     result_msg = msg.PROFILE_HAS_BEEN_UPDATED if is_success else msg.SOMETHING_WENT_WRONG
     await message.answer(result_msg)

@@ -9,7 +9,7 @@ class UserRepository:
 
     async def get_user_by_telegram_id(self, user_tg_id: int) -> User:
         async with async_session() as db:
-            user: User = await db.scalar(select(User).where(User.telegram_id == user_tg_id))
+            user = await db.scalar(select(User).where(User.telegram_id == user_tg_id))
             if not user:
                 raise NonRegisteredError
             return user

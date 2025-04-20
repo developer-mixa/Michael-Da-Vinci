@@ -17,7 +17,7 @@ from src.apps.bot.middlewares.rps import CalculationRpsMiddleware
 
 class BotRunner(ABC):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dp = Dispatcher(storage=MemoryStorage())
         setup_dp(self._dp)
 
@@ -25,10 +25,10 @@ class BotRunner(ABC):
         setup_bot(self._bot)
 
     @abstractmethod
-    async def run(self):
+    async def run(self) -> None:
         pass
 
-    async def _setup(self):
+    async def _setup(self) -> None:
         await self._bot.set_my_commands(bot_commands)
 
         self._dp.include_router(registration_router)

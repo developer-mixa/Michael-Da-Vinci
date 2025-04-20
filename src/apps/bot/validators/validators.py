@@ -11,7 +11,7 @@ MAX_AGE = 200
 
 
 class NameValidator(BaseTgValidator):
-    def _do_validate(self, message: str):
+    def _do_validate(self, message: str) -> None:
         if not message.isalpha():
             raise e.NameCanContainLettersError
         if len(message) >= MAX_NAME_LEN:
@@ -25,7 +25,7 @@ class NameValidator(BaseTgValidator):
 
 
 class AgeValidator(BaseTgValidator):
-    def _do_validate(self, message: str):
+    def _do_validate(self, message: str) -> None:
         try:
             str_to_date(message)
         except Exception:

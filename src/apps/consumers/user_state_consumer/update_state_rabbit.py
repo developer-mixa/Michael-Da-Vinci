@@ -22,7 +22,7 @@ class UpdateStateRabbit(BaseConsumer):
     __exchange_name__ = settings.UPDATE_USER_EXCHANGE_NAME
 
     @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
-    async def processing_message(self, message: Message):
+    async def processing_message(self, message: Message) -> None:
         parsed_user_data: UpdateUserData = msgpack.unpackb(message.body)
         logger.info('Received message: %s', parsed_user_data)
         user_id = parsed_user_data['user_id']
@@ -30,7 +30,7 @@ class UpdateStateRabbit(BaseConsumer):
         try:
             async with async_session() as db:
                 stmt = select(User).where(User.telegram_id == user_id)
-                user: User = await db.scalar(stmt)
+                user = await db.scalar(stmt)
                 if not user:
                     raise NonRegisteredError
                 for param, value in parsed_user_data.items():

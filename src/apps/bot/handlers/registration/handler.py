@@ -25,18 +25,18 @@ registration_producer = RegistrationProducer()
 
 
 @router.message(CommandStart())
-async def start(message: Message):
+async def start(message: Message) -> None:
     await message.answer(msg.WELCOME_MESSAGE)
 
 
 @router.message(F.text == REGISTRATION)
-async def start_registration(message: Message, state: FSMContext):
+async def start_registration(message: Message, state: FSMContext) -> None:
     await state.set_state(Registration.accept_privacy_policy)
     await message.answer(msg.ACCEPT_PRIVACY_POLICE, reply_markup=OK)
 
 
 @router.message(Registration.accept_privacy_policy)
-async def fill_name(message: Message, state: FSMContext):
+async def fill_name(message: Message, state: FSMContext) -> None:
     if message.text != MARKUP_OK:
         await message.answer(msg.OK_TO_CONTINUE, reply_markup=OK)
         return
@@ -46,7 +46,7 @@ async def fill_name(message: Message, state: FSMContext):
 
 
 @router.message(Registration.name)
-async def fill_age(message: Message, state: FSMContext):
+async def fill_age(message: Message, state: FSMContext) -> None:
     answer = msg.HOW_OLD_YOU
     try:
         name = NameValidator().validate(message)
@@ -67,7 +67,7 @@ async def fill_age(message: Message, state: FSMContext):
 
 
 @router.message(Registration.age)
-async def fill_gender(message: Message, state: FSMContext):
+async def fill_gender(message: Message, state: FSMContext) -> None:
     answer = msg.WHAT_YOUR_GENDER
     reply_markup = None
     try:
@@ -82,7 +82,7 @@ async def fill_gender(message: Message, state: FSMContext):
 
 
 @router.message(Registration.gender)
-async def fill_about_you(message: Message, state: FSMContext):
+async def fill_about_you(message: Message, state: FSMContext) -> None:
     message_text = message.text
     if message_text != BOY and message_text != GIRL:
         await message.answer(msg.WRONG_GENDER)
@@ -93,14 +93,14 @@ async def fill_about_you(message: Message, state: FSMContext):
 
 
 @router.message(Registration.description)
-async def fill_description(message: Message, state: FSMContext):
+async def fill_description(message: Message, state: FSMContext) -> None:
     await state.update_data(description=message.text)
     await state.set_state(Registration.image)
     await message.answer(msg.SEND_YOUR_PHOTO, reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(Registration.image)
-async def fill_image(message: Message, state: FSMContext):
+async def fill_image(message: Message, state: FSMContext) -> None:
     if message.photo:
         dowloaded_image = await get_bot().download(file=message.photo[-1].file_id)
         await state.update_data(image=dowloaded_image.read())
@@ -123,6 +123,6 @@ async def fill_image(message: Message, state: FSMContext):
         await message.answer(msg.MUST_SEND_PHOTO)
 
 
-async def __push_register_answer(is_success_reg: bool, message: Message):
+async def __push_register_answer(is_success_reg: bool, message: Message) -> None:
     answer = msg.SUCCESS_REGISTER if is_success_reg else msg.ALREADY_REGISTER
     await message.answer(answer)

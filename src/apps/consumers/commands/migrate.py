@@ -9,7 +9,7 @@ from src.storage.db import engine
 logger = logging.getLogger(__name__)
 
 
-async def migrate():
+async def migrate() -> None:
     try:
         async with engine.begin() as conn:
             await conn.run_sync(meta.metadata.create_all)

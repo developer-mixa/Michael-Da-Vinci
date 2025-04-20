@@ -15,7 +15,7 @@ class AcquaintanceResponseStatus(enum.Enum):
         return self.value
 
     @staticmethod
-    def deserialize(number: int):
+    def deserialize(number: int) -> 'AcquaintanceResponseStatus':
         return {
             1: AcquaintanceResponseStatus.NON_REGISTERED,
             2: AcquaintanceResponseStatus.NOT_FOUND,
@@ -33,7 +33,7 @@ class LikedResponseStatus(enum.Enum):
         return self.value
 
     @staticmethod
-    def deserialize(number: int):
+    def deserialize(number: int) -> 'LikedResponseStatus':
         if number == 5:
             return LikedResponseStatus.LIKE_SENT
         elif number == 6:
@@ -43,22 +43,26 @@ class LikedResponseStatus(enum.Enum):
 
 
 class AcquaintanceResponse(TypedDict):
-    response: AcquaintanceResponseStatus
-    data: UserData | None = None
+    response: int
+    data: UserData | None
 
 
 ACQUAINTANCE_UNEXCEPTED_ERROR = AcquaintanceResponse(
     response=AcquaintanceResponseStatus.UNEXCEPTED_ERROR.serialize(),
+    data=None,
 )
 
 ACQUAINTANCE_NON_REGISTERED = AcquaintanceResponse(
     response=AcquaintanceResponseStatus.NON_REGISTERED.serialize(),
+    data=None,
 )
 
 ACQUAINTANCE_NOT_FOUND = AcquaintanceResponse(
     response=AcquaintanceResponseStatus.NOT_FOUND.serialize(),
+    data=None,
 )
 
 PROFILE_MUST_BE_ACTIVATED = AcquaintanceResponse(
-    response=AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED.serialize()
+    response=AcquaintanceResponseStatus.PROFILE_MUST_BE_ACTIVATED.serialize(),
+    data=None,
 )

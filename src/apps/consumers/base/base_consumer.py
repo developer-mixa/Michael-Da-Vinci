@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable, Coroutine, TypedDict
+from typing import Any, Callable, Coroutine
 
 import aio_pika
 import msgpack
@@ -33,7 +33,7 @@ class BaseConsumer(RabbitBase, ABC):
 
     @analyze_execution_time(DECLARE_QUEUE_LATENCY)
     async def declare_queue(
-        self, queue_name: str = '', routing_key: str = None, exclusive: bool = False
+        self, queue_name: str = '', routing_key: str | None = None, exclusive: bool = False
     ) -> AbstractQueue:
         await self.declare_exchange()
 
@@ -58,7 +58,7 @@ class BaseConsumer(RabbitBase, ABC):
                     await self.processing_message(message)
 
     @analyze_execution_time(PRODUCE_MESSAGE_LATENCY)
-    async def base_produce_message(self, data: TypedDict, queue: str):
+    async def base_produce_message(self, data: dict[Any, Any], queue: str) -> None:
         logger.info('Producing message...')
 
         await self.declare_exchange()
@@ -78,7 +78,7 @@ class BaseConsumer(RabbitBase, ABC):
         success_callback: Callable[[bool], Coroutine],
         prefetch_count: int = 1,
         no_ack: bool = True,
-    ):
+    ) -> None:
         await self.declare_exchange()
         channel = await self.channel()
         await channel.set_qos(prefetch_count=prefetch_count)
@@ -100,16 +100,16 @@ class BaseConsumer(RabbitBase, ABC):
                 await asyncio.sleep(1)
 
     @analyze_execution_time(PRODUCE_MESSAGE_LATENCY)
-    async def publish_message_to_user(self, message, queue_name: str):
+    async def publish_message_to_user(self, message: Any, queue_name: str) -> None:
         await self.declare_exchange()
         await self.declare_queue(queue_name)
         channel = await self.channel()
         exchange = await channel.get_exchange(self.__exchange_name__)
-        message = aio_pika.Message(msgpack.packb(message))
-        await exchange.publish(message, queue_name)
+        pika_message = aio_pika.Message(msgpack.packb(message))
+        await exchange.publish(pika_message, queue_name)
         logger.info('Message published in queue: %s', queue_name)
 
     @abstractmethod
     @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
-    async def processing_message(self, message: Message):
+    async def processing_message(self, message: Message) -> None:
         pass

@@ -18,12 +18,12 @@ class ConsumerApp:
 
     URL_TEMPLATE = 'src.apps.consumers.base.consumer_app:create_app'
 
-    def __init__(self, runner: ConsumerRunner, port: int):
+    def __init__(self, runner: ConsumerRunner, port: int) -> None:
         global RUNNER
         RUNNER = runner
         self.__port = port
 
-    def build(self):
+    def build(self) -> None:
         uvicorn.run(self.URL_TEMPLATE, factory=True, host='0.0.0.0', port=self.__port, workers=1)
 
     @asynccontextmanager

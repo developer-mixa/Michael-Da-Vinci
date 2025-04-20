@@ -16,4 +16,4 @@ class MutualityData(TypedDict):
 
 
 class LikeUserData(BaseAcquaintanceData, MutualityData):
-    liked_user_id: int
+    pass

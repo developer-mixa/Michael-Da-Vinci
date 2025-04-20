@@ -8,6 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class WebhookRunner(BotRunner):
-    async def run(self):
+    async def run(self) -> None:
         await self._setup()
         await self._bot.set_webhook(settings.BOT_WEBHOOK_URL + WEBHOOK_ENDPOINT)
