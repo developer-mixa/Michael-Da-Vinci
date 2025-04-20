@@ -6,6 +6,8 @@ from aio_pika import Message
 
 from src.apps.consumers.base.base_consumer import BaseConsumer
 from config.settings import settings
+from src.apps.consumers.common.analytics import PROCESSING_MESSAGE_LATENCY
+from src.core.utils.time import analyze_execution_time
 from .schema.registration import RegistrationData
 from src.storage.db import async_session
 from ..mappers.user_mapper import user_from_reg_data
@@ -18,6 +20,7 @@ class RegisterUpdatesRabbit(BaseConsumer):
 
     __exchange_name__ = settings.REGISTRATION_EXCHANGE_NAME
 
+    @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
     async def processing_message(self, message: Message):
 
         parsed_reg_data: RegistrationData = msgpack.unpackb(message.body)

@@ -7,7 +7,9 @@ from sqlalchemy import select
 
 from config.settings import settings
 from src.apps.consumers.base.base_consumer import BaseConsumer
+from src.apps.consumers.common.analytics import PROCESSING_MESSAGE_LATENCY
 from src.apps.consumers.user_state_consumer.schema.update_user_state import UpdateUserData
+from src.core.utils.time import analyze_execution_time
 from src.storage.db import async_session
 from ..errors.errors import NonRegisteredError
 from ..model.models import User, UserStatus
@@ -18,6 +20,7 @@ class UpdateStateRabbit(BaseConsumer):
 
     __exchange_name__ = settings.UPDATE_USER_EXCHANGE_NAME
 
+    @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
     async def processing_message(self, message: Message):
         parsed_user_data: UpdateUserData = msgpack.unpackb(message.body)
         logger.info("Received message: %s", parsed_user_data)
