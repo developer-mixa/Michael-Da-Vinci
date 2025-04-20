@@ -1,36 +1,39 @@
-import io
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+import logging
+
 from aiogram import F
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, ReplyKeyboardRemove
 
 from config.settings import settings
 from src.apps.bot.bot import get_bot
+from src.apps.bot.commands.commands import REGISTRATION
+from src.apps.bot.keyboards.registration import GENDERS, OK
+from src.apps.bot.keyboards.texts import BOY, GIRL, OK as MARKUP_OK
+from src.apps.bot.messages import register as msg
+from src.apps.bot.validators import errors as validation
+from src.apps.bot.validators.validators import AgeValidator, NameValidator
 from src.apps.consumers.register_consumer.schema.registration import RegistrationData
+
+from ...producers.registration_producer import RegistrationProducer
 from ..states.registration import Registration
 from .router import router
-from src.apps.bot.keyboards.registration import OK, GENDERS, LOCATION
-from aiogram.types import ReplyKeyboardRemove
-from src.apps.bot.validators.validators import NameValidator, AgeValidator
-from src.apps.bot.validators import errors as validation
-from src.apps.bot.messages import register as msg
-from src.apps.bot.keyboards.texts import OK as MARKUP_OK, BOY, GIRL
-from ...producers.registration_producer import RegistrationProducer
-from src.apps.bot.commands.commands import REGISTRATION
-import logging
 
 logger = logging.getLogger(__name__)
 
 registration_producer = RegistrationProducer()
 
+
 @router.message(CommandStart())
 async def start(message: Message):
     await message.answer(msg.WELCOME_MESSAGE)
+
 
 @router.message(F.text == REGISTRATION)
 async def start_registration(message: Message, state: FSMContext):
     await state.set_state(Registration.accept_privacy_policy)
     await message.answer(msg.ACCEPT_PRIVACY_POLICE, reply_markup=OK)
+
 
 @router.message(Registration.accept_privacy_policy)
 async def fill_name(message: Message, state: FSMContext):
@@ -40,6 +43,7 @@ async def fill_name(message: Message, state: FSMContext):
     await state.update_data(accept_privacy_policy=message.text)
     await state.set_state(Registration.name)
     await message.answer(msg.WHAT_YOUR_NAME, reply_markup=ReplyKeyboardRemove())
+
 
 @router.message(Registration.name)
 async def fill_age(message: Message, state: FSMContext):
@@ -61,10 +65,11 @@ async def fill_age(message: Message, state: FSMContext):
     finally:
         await message.answer(answer)
 
+
 @router.message(Registration.age)
 async def fill_gender(message: Message, state: FSMContext):
     answer = msg.WHAT_YOUR_GENDER
-    reply_markup=None
+    reply_markup = None
     try:
         age = AgeValidator().validate(message)
         await state.update_data(age=age)
@@ -75,8 +80,9 @@ async def fill_gender(message: Message, state: FSMContext):
     finally:
         await message.answer(answer, reply_markup=reply_markup)
 
+
 @router.message(Registration.gender)
-async def fill_gender(message: Message, state: FSMContext):
+async def fill_about_you(message: Message, state: FSMContext):
     message_text = message.text
     if message_text != BOY and message_text != GIRL:
         await message.answer(msg.WRONG_GENDER)
@@ -85,11 +91,13 @@ async def fill_gender(message: Message, state: FSMContext):
     await state.set_state(Registration.description)
     await message.answer(msg.ABOUT_YOU, reply_markup=ReplyKeyboardRemove())
 
+
 @router.message(Registration.description)
-async def fill_gender(message: Message, state: FSMContext):
+async def fill_description(message: Message, state: FSMContext):
     await state.update_data(description=message.text)
     await state.set_state(Registration.image)
     await message.answer(msg.SEND_YOUR_PHOTO, reply_markup=ReplyKeyboardRemove())
+
 
 @router.message(Registration.image)
 async def fill_image(message: Message, state: FSMContext):
@@ -109,10 +117,11 @@ async def fill_image(message: Message, state: FSMContext):
             await producer.wait_answer_for_user(
                 settings.REGISTRATION_QUEUE_NAME,
                 user_id,
-                lambda is_success_reg: __push_register_answer(is_success_reg, message)
+                lambda is_success_reg: __push_register_answer(is_success_reg, message),
             )
     else:
         await message.answer(msg.MUST_SEND_PHOTO)
+
 
 async def __push_register_answer(is_success_reg: bool, message: Message):
     answer = msg.SUCCESS_REGISTER if is_success_reg else msg.ALREADY_REGISTER

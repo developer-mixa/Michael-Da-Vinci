@@ -1,4 +1,4 @@
-from redis.asyncio import Redis, ConnectionPool
+from redis.asyncio import ConnectionPool, Redis
 
 from config.settings import settings
 
@@ -9,10 +9,7 @@ def setup_redis() -> Redis:
     global redis
 
     pool = ConnectionPool(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
-    redis_ = Redis(connection_pool=pool)
-
-    redis = redis_
-    return redis
+    redis = Redis(connection_pool=pool)
 
 
 def get_redis() -> Redis:

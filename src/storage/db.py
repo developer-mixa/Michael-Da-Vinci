@@ -17,12 +17,7 @@ def create_engine() -> AsyncEngine:
     return create_async_engine(
         settings.db_url,
         poolclass=AsyncAdaptedQueuePool,
-        connect_args={
-            'connection_class': CConnection,
-            # 'pool_recycle': 3600,
-            # 'pool_size': 5,
-            # 'pool_overflow': 10,
-        },
+        connect_args={'connection_class': CConnection},
     )
 
 

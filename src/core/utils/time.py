@@ -3,6 +3,7 @@ import time
 
 from prometheus_client import Histogram
 
+
 def analyze_execution_time(histogram: Histogram):
     def decorator(func):
         @functools.wraps(func)
@@ -12,5 +13,7 @@ def analyze_execution_time(histogram: Histogram):
             end = time.monotonic()
             histogram.observe(end - start)
             return result
+
         return wrapper
+
     return decorator

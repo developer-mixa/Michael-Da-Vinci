@@ -1,11 +1,11 @@
-from aio_pika.abc import AbstractRobustConnection, AbstractChannel
-from aio_pika.channel import Channel
-from aio_pika.connection import  Connection
-
-from src.apps.consumers.base.exceptions import RabbitException
 import aio_pika
-from config.settings import settings
+from aio_pika.abc import AbstractChannel, AbstractRobustConnection
+from aio_pika.channel import Channel
+from aio_pika.connection import Connection
 from aio_pika.pool import Pool
+
+from config.settings import settings
+from src.apps.consumers.base.exceptions import RabbitException
 
 
 class RabbitBase:
@@ -20,17 +20,15 @@ class RabbitBase:
         async with self._connection_pool.acquire() as connection:
             return await connection.channel()
 
-
     async def channel(self) -> Channel:
         if self._channel_pool is None:
-            raise RabbitException("Please use context manager for Rabbit helper.")
+            raise RabbitException('Please use context manager for Rabbit helper.')
         async with self._channel_pool.acquire() as channel:
             return channel
 
-
     async def connection(self) -> Connection:
         if not self._connection_pool:
-            raise RabbitException("Please use context manager for Rabbit helper.")
+            raise RabbitException('Please use context manager for Rabbit helper.')
         async with self._connection_pool.acquire() as connection:
             return connection
 

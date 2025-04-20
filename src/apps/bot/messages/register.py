@@ -2,13 +2,13 @@ from src.apps.bot.commands.commands import ACTIVATING, REGISTRATION
 
 # success messages
 
-WELCOME_MESSAGE = f'''
+WELCOME_MESSAGE = f"""
 Добро пожаловать в бота для знакомств! Я рад приветствовать вас и помочь найти новых друзей.
 
 Чтобы начать знакомиться, выполните следующие шаги:
 1. Зарегистрируйтесь по команде {REGISTRATION}
 2. Активируйте свой профиль по команде {ACTIVATING}
-'''
+"""
 
 ACCEPT_PRIVACY_POLICE = 'Продолжая, вы принимаете пользовательское соглашение и политику конфидициальности.'
 SEND_LOCATION = 'Отправить мои координаты'
