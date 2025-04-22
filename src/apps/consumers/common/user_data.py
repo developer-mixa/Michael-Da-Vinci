@@ -15,7 +15,7 @@ class UserData(TypedDict):
     def from_db_user(user: User, user_image: bytes) -> 'UserData':
         return {
             'name': user.name,
-            'age': str(user.dateOfBirth),
+            'age': str(user.date_of_birth),
             'description': user.description,
             'gender': 'Девушка' if user.gender == Gender.GIRL else 'Парень',
             'image': user_image,

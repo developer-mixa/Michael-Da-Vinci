@@ -19,6 +19,8 @@ from ...producers.registration_producer import RegistrationProducer
 from ..states.registration import Registration
 from .router import router
 
+import base64
+
 logger = logging.getLogger(__name__)
 
 registration_producer = RegistrationProducer()
@@ -102,8 +104,13 @@ async def fill_description(message: Message, state: FSMContext) -> None:
 @router.message(Registration.image)
 async def fill_image(message: Message, state: FSMContext) -> None:
     if message.photo:
-        dowloaded_image = await get_bot().download(file=message.photo[-1].file_id)
-        await state.update_data(image=dowloaded_image.read())
+
+        dowloaded_image = (await get_bot().download(file=message.photo[-1].file_id)).read()
+        image_base64 = base64.b64encode(dowloaded_image).decode('utf-8')
+        await state.update_data(image=image_base64)
+
+        # dowloaded_image = await get_bot().download(file=message.photo[-1].file_id)
+        # await state.update_data(image=dowloaded_image.read())
         data = await state.get_data()
         await message.answer(msg.PUSH_REGISTER_QUERY)
         await state.clear()

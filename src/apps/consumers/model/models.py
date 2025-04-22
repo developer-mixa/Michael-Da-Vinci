@@ -22,13 +22,13 @@ class Gender(enum.Enum):
 
 
 class User(Base, UUIDMixin):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     name: Mapped[str] = mapped_column(String(MAX_NAME_LEN))
     description: Mapped[str] = mapped_column(String(MAX_DESCRIPTION_LEN))
-    dateOfBirth: Mapped[date]
+    date_of_birth: Mapped[date]
     telegram_id = mapped_column(BigInteger, unique=True)
-    status = mapped_column(Enum(UserStatus))
-    gender = mapped_column(Enum(Gender))
+    status = mapped_column(Enum(UserStatus, name='user_status'))
+    gender = mapped_column(Enum(Gender, name='gender'))
 
     __table_args__ = (UniqueConstraint('telegram_id', name='uq_user_telegram_id'),)

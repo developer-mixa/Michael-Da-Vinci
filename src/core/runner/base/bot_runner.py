@@ -15,7 +15,6 @@ from src.apps.bot.middlewares.rps import CalculationRpsMiddleware
 from aiogram.fsm.storage.redis import RedisStorage
 from src.storage.redis import setup_redis, get_redis
 
-
 class BotRunner(ABC):
 
     def __init__(self) -> None:
