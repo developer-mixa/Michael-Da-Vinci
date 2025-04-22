@@ -3,6 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
+    env_file: .env
     command: > 
       sh -c "python3 ./src/main/app.py"
     ports:
@@ -23,6 +24,8 @@ services:
       user_state_consumer:
         condition: service_started
       acquaintance_consumer:
+        condition: service_started
+      redis:
         condition: service_started
     networks:
       - acquaintance_internet
@@ -137,7 +140,6 @@ services:
       - "9001:9001"
     networks:
       - acquaintance_internet
-
   prometheus:
     container_name: acquaintance-prometheus
     image: prom/prometheus
@@ -148,6 +150,43 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus:/etc/prometheus
+    networks:
+      - acquaintance_internet
+  redis:
+    image: redis:latest
+    container_name: redis_acquaintance
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redisdata:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      sh -c '
+        mkdir -p /usr/local/etc/redis &&
+        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+        echo "user default on >$REDIS_PASSWORD ~* +@all" > /usr/local/etc/redis/users.acl &&
+        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+      '
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
     networks:
       - acquaintance_internet
 

@@ -8,7 +8,7 @@ redis: Redis
 def setup_redis() -> None:
     global redis
 
-    pool = ConnectionPool(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+    pool = ConnectionPool(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=3, password=settings.REDIS_PASSWORD, socket_timeout=5)
     redis = Redis(connection_pool=pool)
 
 

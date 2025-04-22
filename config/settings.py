@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     UPDATE_USER_QUEUE_NAME: str = 'update_user_queue'
     LIKES_QUEUE_NAME: str = 'likes'
 
+    REDIS_HOST: str = '0.0.0.0'
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str
+
     @property
     def db_url(self) -> str:
         return f"postgresql+asyncpg://{self.PG_USER}:{self.PG_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.PG_DBNAME}"
