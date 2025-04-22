@@ -27,6 +27,8 @@ services:
         condition: service_started
       redis:
         condition: service_started
+      migrator:
+        condition: service_completed_successfully
     networks:
       - acquaintance_internet
       - acquaintance_pg_net
@@ -37,7 +39,7 @@ services:
     ports:
       - "${REGISTRATION_CONSUMER_PORT}:${REGISTRATION_CONSUMER_PORT}"
     command: >
-      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/register_consumer/app.py"
+      sh -c "python3 ./src/apps/consumers/register_consumer/app.py"
     volumes:
       - "./:/code"
     depends_on:
@@ -53,7 +55,7 @@ services:
     build: .
     restart: always
     command: >
-      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/user_state_consumer/app.py"
+      sh -c "python3 ./src/apps/consumers/user_state_consumer/app.py"
     ports:
       - "${USER_STATE_CONSUMER_PORT}:${USER_STATE_CONSUMER_PORT}"
     volumes:
@@ -65,6 +67,8 @@ services:
         condition: service_started
       prometheus:
         condition: service_started
+      migrator:
+        condition: service_completed_successfully
     networks:
       - acquaintance_internet
       - acquaintance_pg_net
@@ -75,7 +79,7 @@ services:
     ports:
       - "${ACQUINTANCE_CONSUMER_PORT}:${ACQUINTANCE_CONSUMER_PORT}"
     command: >
-      sh -c "python3 ./src/apps/consumers/commands/migrate.py && python3 ./src/apps/consumers/acquaintance_consumer/app.py"
+      sh -c "python3 ./src/apps/consumers/acquaintance_consumer/app.py"
     volumes:
       - "./:/code"
     depends_on:
@@ -83,6 +87,8 @@ services:
         condition: service_healthy
       postgres:
         condition: service_started
+      migrator:
+        condition: service_completed_successfully
     networks:
       - acquaintance_internet
       - acquaintance_pg_net
@@ -189,6 +195,19 @@ services:
     stdin_open: true
     networks:
       - acquaintance_internet
+  migrator:
+    container_name: migrator_acquaintance
+    image: 'ghcr.io/amacneil/dbmate:2.12'
+    command: -u "postgres://${PG_USER}:${PG_PASSWORD}@host.docker.internal:8888/${PG_DBNAME}?sslmode=disable" up
+    volumes:
+      - ./migrations:/db/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - acquaintance_pg_net
 
 volumes:
   acquaintance_postgresql_data: null
