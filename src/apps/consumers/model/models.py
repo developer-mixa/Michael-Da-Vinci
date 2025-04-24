@@ -1,8 +1,8 @@
 import enum
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Dict
 
-from sqlalchemy import BigInteger, Enum, String, UniqueConstraint
+from sqlalchemy import UUID, BigInteger, Enum, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.apps.common.models.meta import Base
@@ -56,3 +56,12 @@ class User(Base, UUIDMixin):
             status=UserStatus(data['status']),
             gender=Gender(data['gender'])
         )
+
+
+class Like(Base):
+    __tablename__ = 'likes'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    target_user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    sender_user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)

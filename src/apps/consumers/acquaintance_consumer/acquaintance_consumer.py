@@ -5,6 +5,7 @@ import msgpack
 from aio_pika import Message
 
 from config.settings import settings
+from src.apps.consumers.acquaintance_consumer.data.likes_repository import LikeRepository
 from src.apps.consumers.acquaintance_consumer.schema.acquintance_data import (
     BaseAcquaintanceData,
     LikeUserData,
@@ -39,6 +40,7 @@ class AcquaintanceRabbit(BaseConsumer):
 
     def __init__(self) -> None:
         self.acquaintance_repository = AcquaintanceRepository()
+        self.likes_repository = LikeRepository()
 
     @analyze_execution_time(PROCESSING_MESSAGE_LATENCY)
     async def processing_message(self, message: Message) -> None:
@@ -123,6 +125,11 @@ class AcquaintanceRabbit(BaseConsumer):
 
     async def _like_user(self, sender_id: int, liked_user_id: int) -> None:
         user_likes_queue: str = f'{settings.LIKES_QUEUE_NAME}.{sender_id}'
+
+        sender_uuid = (await self.acquaintance_repository.get_user_by_telegram_id(sender_id)).id
+        liked_uuid = (await self.acquaintance_repository.get_user_by_telegram_id(liked_user_id)).id
+        await self.likes_repository.like_user(sender_uuid, liked_uuid)
+
         await self.publish_message_to_user(message=liked_user_id, queue_name=user_likes_queue)
         await self.publish_message_to_user(
             message=AcquaintanceResponse(response=LikedResponseStatus.LIKE_SENT.serialize()),
