@@ -25,7 +25,7 @@ class BaseConsumer(RabbitBase, ABC):
 
     __exchange_name__: str
 
-    __RETRIES = 5
+    __RETRIES = 45
 
     async def declare_exchange(self) -> None:
         channel = await self.channel()
