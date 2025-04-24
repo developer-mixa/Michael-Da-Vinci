@@ -55,7 +55,7 @@ class AcquaintanceRabbit(BaseConsumer):
         user_id = acquaintance_data['user_id']
         search_queue_name: str = f'{settings.ACQUAINTANCE_QUEUE_NAME}.{user_id}'
         try:
-            found_user = await self.acquaintance_repository.get_random_acquaintance(user_id)
+            found_user = await self.acquaintance_repository.get_ranked_acquaintance(user_id)
             if found_user:
                 found_user_image = images_storage.get_file(str(found_user.telegram_id))
                 user_data = UserData.from_db_user(found_user, found_user_image)

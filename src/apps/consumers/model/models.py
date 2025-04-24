@@ -1,5 +1,6 @@
 import enum
 from datetime import date
+from typing import Any, Dict
 
 from sqlalchemy import BigInteger, Enum, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
@@ -32,3 +33,26 @@ class User(Base, UUIDMixin):
     gender = mapped_column(Enum(Gender, name='gender'))
 
     __table_args__ = (UniqueConstraint('telegram_id', name='uq_user_telegram_id'),)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': str(self.id),
+            'name': self.name,
+            'description': self.description,
+            'date_of_birth': self.date_of_birth.isoformat(),
+            'telegram_id': self.telegram_id,
+            'status': self.status.value,
+            'gender': self.gender.value
+        }
+
+    @staticmethod
+    def from_dict(data: dict) -> "User":
+        return User(
+            id=data['id'],
+            name=data['name'],
+            description=data['description'],
+            date_of_birth=date.fromisoformat(data['date_of_birth']),
+            telegram_id=data['telegram_id'],
+            status=UserStatus(data['status']),
+            gender=Gender(data['gender'])
+        )
