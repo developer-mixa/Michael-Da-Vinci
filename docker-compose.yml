@@ -39,7 +39,7 @@ services:
     ports:
       - "${REGISTRATION_CONSUMER_PORT}:${REGISTRATION_CONSUMER_PORT}"
     command: >
-      sh -c "python3 ./src/apps/consumers/register_consumer/app.py"
+      sh -c "python3 ./src/presentation/consumers/register_app.py"
     volumes:
       - "./:/code"
     depends_on:
@@ -55,7 +55,7 @@ services:
     build: .
     restart: always
     command: >
-      sh -c "python3 ./src/apps/consumers/user_state_consumer/app.py"
+      sh -c "python3 ./src/presentation/consumers/user_state_app.py"
     ports:
       - "${USER_STATE_CONSUMER_PORT}:${USER_STATE_CONSUMER_PORT}"
     volumes:
@@ -79,7 +79,7 @@ services:
     ports:
       - "${ACQUINTANCE_CONSUMER_PORT}:${ACQUINTANCE_CONSUMER_PORT}"
     command: >
-      sh -c "python3 ./src/apps/consumers/acquaintance_consumer/app.py"
+      sh -c "python3 ./src/presentation/consumers/acquaintance_app.py"
     volumes:
       - "./:/code"
     depends_on:

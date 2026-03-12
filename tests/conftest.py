@@ -14,9 +14,7 @@ if str(ROOT_DIR) not in sys.path:
 def env_settings():
     """
     Minimal env so that config.settings.Settings can be constructed in tests.
-    Individual tests can override values via monkeypatch.
     """
-
     os.environ.setdefault("BOT_TOKEN", "TEST_TOKEN")
     os.environ.setdefault("BOT_WEBHOOK_URL", "")
     os.environ.setdefault("PG_USER", "test")
@@ -33,5 +31,3 @@ def env_settings():
     os.environ.setdefault("MINIO_HOST", "minio")
 
     yield
-
-

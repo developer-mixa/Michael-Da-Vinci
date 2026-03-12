@@ -1,0 +1,45 @@
+"""Base bot runner — sets up the bot, dispatcher, handlers and middlewares."""
+
+from abc import ABC, abstractmethod
+
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.redis import RedisStorage
+
+from config.settings import settings
+from src.presentation.bot.bot import setup_bot, setup_dp
+from src.presentation.bot.handlers.registration import router as registration_router
+from src.presentation.bot.handlers.acquaintance import router as acquaintance_router
+from src.presentation.bot.handlers.user_state import router as user_state_router
+from src.presentation.bot.handlers.flood import router as flood_router
+from src.presentation.bot.menu.commands_menu import bot_commands
+from src.presentation.bot.middlewares.calculation_analytics import CalculationAnalyticsMiddleware
+from src.presentation.bot.middlewares.execution_time_middleware import CalculationExecutionTimeMiddleware
+from src.presentation.bot.middlewares.rps import CalculationRpsMiddleware
+from src.infrastructure.redis.cache import RedisCache
+
+
+class BotRunner(ABC):
+
+    def __init__(self, cache: RedisCache) -> None:
+        redis_storage = RedisStorage(redis=cache.redis)
+        self._dp = Dispatcher(storage=redis_storage)
+        setup_dp(self._dp)
+
+        self._bot = Bot(token=settings.BOT_TOKEN)
+        setup_bot(self._bot)
+
+    @abstractmethod
+    async def run(self) -> None:
+        pass
+
+    async def _setup(self) -> None:
+        await self._bot.set_my_commands(bot_commands)
+
+        self._dp.include_router(registration_router)
+        self._dp.include_router(user_state_router)
+        self._dp.include_router(acquaintance_router)
+        self._dp.include_router(flood_router)
+        self._dp.update.outer_middleware(CalculationAnalyticsMiddleware())
+        self._dp.update.outer_middleware(CalculationRpsMiddleware())
+        self._dp.update.outer_middleware(CalculationExecutionTimeMiddleware())
+

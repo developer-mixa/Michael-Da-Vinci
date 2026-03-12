@@ -1,0 +1,8 @@
+ACTIVATION_REQUEST_SENT = 'Заявка с активацией профиля отправлена в очередь...'
+DEACTIVATION_REQUEST_SENT = 'Заявка с деактивацией профиля отправлена в очередь...'
+PROFILE_HAS_BEEN_ACTIVATED = 'Профиль активирован!'
+PROFILE_HAS_BEEN_DEACTIVATED = 'Профиль деактивирован!'
+PROFILE_HAS_BEEN_UPDATED = 'Профиль обновлён!'
+SOMETHING_WENT_WRONG = 'Что-то пошло не так. Проверьте, зарегистрированы ли вы'
+WHAT_TO_UPDATE = 'Что вы хотите изменить в профиле?'
+

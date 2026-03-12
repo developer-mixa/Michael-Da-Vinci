@@ -1,3 +1,5 @@
+"""Main entry point — FastAPI application with bot runner."""
+
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -9,17 +11,17 @@ from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 
 from config.settings import settings
-from src.apps.api.analytics.router import router as analytics_router
-from src.apps.bot.webhook.router import router as webhook_router
-from src.core.runner.base.bot_runner import BotRunner
-from src.core.runner.polling_runner import PollingRunner
-from src.core.runner.webhook_runner import WebhookRunner
+from src.main.container import cache
+from src.presentation.api.analytics.router import router as analytics_router
+from src.presentation.bot.runner.polling_runner import PollingRunner
+from src.presentation.bot.runner.webhook_runner import WebhookRunner
+from src.presentation.bot.runner.base_runner import BotRunner
+from src.presentation.bot.webhook.router import router as webhook_router
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 logger = logging.getLogger(__name__)
 
-bot_runner: BotRunner = WebhookRunner() if settings.BOT_WEBHOOK_URL else PollingRunner()
+bot_runner: BotRunner = WebhookRunner(cache) if settings.BOT_WEBHOOK_URL else PollingRunner(cache)
 
 
 @asynccontextmanager

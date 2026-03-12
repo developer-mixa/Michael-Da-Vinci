@@ -1,25 +1,12 @@
-import asyncio
+"""Tests for infrastructure RabbitMQ base consumer."""
+
 from types import SimpleNamespace
 
 import msgpack
 import pytest
 from aio_pika.exceptions import QueueEmpty
 
-from src.apps.consumers.base.base_consumer import BaseConsumer
-
-
-class DummyConsumer(BaseConsumer):
-    __exchange_name__ = "test_exchange"
-
-    def __init__(self, channel):
-        self._channel = channel
-
-    async def channel(self):
-        return self._channel
-
-    async def processing_message(self, message):
-        # used only in other tests
-        self.last_message = message
+from src.infrastructure.rabbit.base import BaseConsumer
 
 
 class DummyQueue:
@@ -34,10 +21,6 @@ class DummyQueue:
         if not self.messages:
             raise QueueEmpty
         return self.messages.pop(0)
-
-    async def iterator(self):
-        for m in list(self.messages):
-            yield m
 
 
 class DummyExchange:
@@ -69,40 +52,51 @@ class DummyChannel:
         self.qos = prefetch_count
 
 
+class StubConsumer(BaseConsumer):
+    __exchange_name__ = "test_exchange"
+
+    def __init__(self, channel):
+        self._rabbit_url = "amqp://fake"
+        self._connection_pool = None
+        self._channel_pool = None
+        self._test_channel = channel
+
+    async def channel(self):
+        return self._test_channel
+
+    async def processing_message(self, message):
+        self.last_message = message
+
+
 @pytest.mark.asyncio
 async def test_declare_queue_binds_exchange():
-    channel = DummyChannel()
-    consumer = DummyConsumer(channel)
+    ch = DummyChannel()
+    consumer = StubConsumer(ch)
+    queue = await consumer.declare_queue("my_queue", routing_key="key")
 
-    queue = await consumer.declare_queue("test_queue", routing_key="key", exclusive=False)
-
-    # queue created and bound
     assert isinstance(queue, DummyQueue)
-    assert channel.declared_queues[0][0] == "test_queue"
+    assert ch.declared_queues[0][0] == "my_queue"
     assert queue.bound_exchange[1] == "key"
 
 
 @pytest.mark.asyncio
-async def test_base_produce_message_publishes_msgpack():
-    channel = DummyChannel()
-    consumer = DummyConsumer(channel)
+async def test_base_produce_message():
+    ch = DummyChannel()
+    consumer = StubConsumer(ch)
+    data = {"hello": "world"}
+    await consumer.base_produce_message(data, queue="q1")
 
-    data = {"foo": "bar"}
-    await consumer.base_produce_message(data, queue="test_queue")
-
-    assert len(channel.exchange.published) == 1
-    message, routing_key = channel.exchange.published[0]
-    assert routing_key == "test_queue"
-    unpacked = msgpack.unpackb(message.body)
-    assert unpacked == data
+    assert len(ch.exchange.published) == 1
+    msg_body, routing_key = ch.exchange.published[0]
+    assert routing_key == "q1"
+    assert msgpack.unpackb(msg_body.body) == data
 
 
 @pytest.mark.asyncio
-async def test_wait_answer_for_user_calls_callback_on_message(monkeypatch):
-    channel = DummyChannel()
-    consumer = DummyConsumer(channel)
+async def test_wait_answer_calls_callback(monkeypatch):
+    ch = DummyChannel()
+    consumer = StubConsumer(ch)
 
-    # Prepare queue with single boolean message
     async def fake_declare_queue(queue_name, exclusive=False, routing_key=None):
         q = DummyQueue()
         q.messages.append(SimpleNamespace(body=msgpack.packb(True)))
@@ -112,15 +106,9 @@ async def test_wait_answer_for_user_calls_callback_on_message(monkeypatch):
 
     called = {}
 
-    async def success_callback(value: bool):
+    async def callback(value):
         called["value"] = value
 
-    await consumer.wait_answer_for_user(
-        queue_name="user_registration",
-        user_id=123,
-        success_callback=success_callback,
-    )
-
-    assert called.get("value") is True
-
+    await consumer.wait_answer_for_user("reg_queue", 42, callback)
+    assert called["value"] is True
 
