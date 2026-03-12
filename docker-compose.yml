@@ -198,14 +198,12 @@ services:
   migrator:
     container_name: migrator_acquaintance
     image: 'ghcr.io/amacneil/dbmate:2.12'
-    command: -u "postgres://${PG_USER}:${PG_PASSWORD}@host.docker.internal:8888/${PG_DBNAME}?sslmode=disable" up
+    command: -u "postgres://${PG_USER}:${PG_PASSWORD}@postgres-acquaintance:5432/${PG_DBNAME}?sslmode=disable" up
     volumes:
       - ./migrations:/db/migrations
     depends_on:
       postgres:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - acquaintance_pg_net
 

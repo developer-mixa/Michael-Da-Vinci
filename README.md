@@ -54,6 +54,32 @@ MINIO_PASSWORD=user_password
 MINIO_HOST=minio-app
 
 
+## Тестирование
+
+### Запуск юнит-тестов
+
+1. Активируйте виртуальное окружение:
+
+```bash
+source .venv/bin/activate
+```
+
+2. Запустите тесты:
+
+```bash
+pytest
+```
+
+### Запуск тестов с покрытием
+
+Для оценки покрытия по основным модулям (`src/storage` и `src/apps/consumers/base`) используйте:
+
+```bash
+pytest --cov=src/storage --cov=src/apps/consumers/base --cov-report=term-missing
+```
+
+Общее покрытие по этим модулям должно быть не ниже 35% (на текущий момент ~55%).
+
 ## Функции
 
 - Поиск между пользователями
