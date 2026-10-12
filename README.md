@@ -1,16 +1,38 @@
-# Michael-Da-Vinci - Telegram Bot for Dating
+# Michael-Da-Vinci — Telegram-бот знакомств на микросервисах
 
-## Описание
+Бот для онлайн-знакомств: регистрация анкеты, поиск, лайки и взаимные совпадения.
+Обработка вынесена в отдельные сервисы-консьюмеры, которые общаются с ботом через RabbitMQ.
 
-Этот репозиторий содержит исходный код для Telegram бота, предназначенного для организации онлайн-знакомств. Бот предоставляет функционал для поиска партнеров.
+## Архитектура
 
-## Технологии
+```
+Telegram ──webhook / polling──> web (FastAPI + aiogram 3) ──> RabbitMQ ──> register_consumer
+                                   │                                  ├──> user_state_consumer
+                                   │                                  └──> acquaintance_consumer
+                                   └── метрики <── Prometheus                     │
+                                                              PostgreSQL · Redis · MinIO
+```
 
-- Python 3.8+
-- Telethon (для работы с Telegram Bot API)
-- RabbitMQ (для обработки сообщений)
-- PostgreSQL (для хранения данных)
-- Поддерживается WebHook при указании BOT_WEBHOOK_URL
+- **web** — FastAPI-приложение: принимает Webhook от Telegram (или запускает polling, если webhook не задан),
+  обрабатывает апдейты через aiogram 3, отдаёт метрики для Prometheus.
+- **register_consumer / user_state_consumer / acquaintance_consumer** — независимые сервисы на aio-pika:
+  регистрация анкеты, обновление профиля, подбор пар и лайки.
+- **PostgreSQL** — asyncpg + SQLAlchemy 2 (async), миграции через dbmate.
+- **Redis** — хранилище FSM-состояний бота (aiogram RedisStorage) и данные для подбора анкет.
+- **MinIO (S3)** — хранение файлов.
+- **Prometheus** — собственные метрики: RPS бота, время обработки апдейтов, бизнес-аналитика.
+
+## Стек
+
+Python 3.10+, aiogram 3, FastAPI, SQLAlchemy 2 (async), asyncpg, RabbitMQ (aio-pika), Redis, MinIO,
+Prometheus, Pydantic v2, Docker Compose, Poetry, pytest.
+
+## Особенности
+
+- Middleware aiogram: подсчёт RPS, замер времени выполнения хендлеров, сбор аналитики, антифлуд.
+- Два режима работы: polling для разработки и webhook для продакшена.
+- Сквозное логирование (конфиг — `config/logging.conf.yml`).
+- Тесты на слой хранения (PostgreSQL, RabbitMQ, Redis) и базовый консьюмер.
 
 ## Установка
 
@@ -19,12 +41,17 @@
 1. Убедитесь, что у вас установлен Docker и Docker Compose.
 
 2. Клонируйте этот репозиторий:
-git clone https://github.com/developer-mixa/Michael-Da-Vinci.git cd Michael-Da-Vinci
 
+```bash
+git clone https://github.com/developer-mixa/Michael-Da-Vinci.git
+cd Michael-Da-Vinci
+```
 
 3. Выполните команду для запуска всех необходимых контейнеров:
-docker-compose up --build
 
+```bash
+docker compose up --build
+```
 
 4. После успешного запуска, бот будет доступен через Telegram. Отправьте ему команду `/start`, чтобы начать использовать его функционал.
 
@@ -32,6 +59,7 @@ docker-compose up --build
 
 Перед запуском убедитесь, что у вас есть файл `.env` в корневой директории проекта. Он должен содержать следующие переменные окружения:
 
+```env
 BOT_TOKEN=your_token
 BOT_WEBHOOK_URL=
 
@@ -43,6 +71,7 @@ PG_PORT=5432
 
 REDIS_HOST=redis
 REDIS_PORT=6379
+REDIS_PASSWORD=redis_password
 
 SERVER_PORT=8000
 USER_STATE_CONSUMER_PORT=8001
@@ -52,6 +81,7 @@ ACQUINTANCE_CONSUMER_PORT=8003
 MINIO_USER=user
 MINIO_PASSWORD=user_password
 MINIO_HOST=minio-app
+```
 
 
 ## Тестирование

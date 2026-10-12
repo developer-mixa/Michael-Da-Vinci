@@ -4,3 +4,5 @@ config/.env
 .env
 **__pycache__**
 redisdata
+.coverage
+.gigaide/
